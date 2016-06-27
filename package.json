@@ -4,8 +4,13 @@
   "description": "COP4331 Project",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "hapi": "^13.4.1",
+    "nodemon": "^1.9.2"
+  }
 }
