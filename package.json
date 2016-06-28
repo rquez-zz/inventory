@@ -10,7 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
     "hapi": "^13.4.1",
+    "mongoose": "^4.5.2",
     "nodemon": "^1.9.2"
   }
 }

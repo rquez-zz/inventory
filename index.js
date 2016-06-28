@@ -2,6 +2,7 @@ const Hapi = require('hapi');
 const fs = require('fs');
 
 const config = require('./config.js');
+const database = require('./app/services/database');
 
 const server = new Hapi.Server();
 
