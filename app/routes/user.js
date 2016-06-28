@@ -4,7 +4,8 @@ const user = [
     {
         method: 'POST',
         path: '/user',
-        handler: userHandler.createUser
+        handler: userHandler.createUser,
+        config: { auth: false }
     },
     {
         method: 'PUT',
