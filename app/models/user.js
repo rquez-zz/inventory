@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt-nodejs');
+const bcrypt = require('bcryptjs');
 
 const CategorySchema = require('./category.js');
 const ItemSchema = require('./item.js');
@@ -13,8 +13,8 @@ const UserSchema = mongoose.Schema({
 });
 
 UserSchema.statics.hashPassword = function(password) {
-    const config = require('../config/rpgify');
-    return bcrypt.hashSync(password, config.bcrypt.workFactor);
+    const salt = bcrypt.genSaltSync(require('./../../config').bcrypt);
+    return bcrypt.hashSync(password, salt);
 };
 
 UserSchema.methods.isValidPassword = function(password) {
