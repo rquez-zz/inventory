@@ -13,7 +13,7 @@ const user = {
             if (user)
                 return reply(Boom.conflict('Email for this user already exists.'));
             else
-                return User.findOne({'username': req.payload.username }).exec();
+                return User.findOne({'username': req.payload.username });
 
         }).then(user => {
 
