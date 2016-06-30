@@ -6,10 +6,12 @@ const ItemSchema = require('./item.js');
 
 const UserSchema = mongoose.Schema({
     password: { type: String },
-    email: { type: String, required: true, unique: true },
-    username: { type: String, required: true, unique: true },
+    email: { type: String, required: true },
+    username: { type: String, required: true },
     inventory: [ItemSchema],
-    categories: [CategorySchema]
+    categories: [CategorySchema],
+    sharedFrom: [{ type: String, required: true }],
+    sharedTo: [{ type: String, required: true }],
 });
 
 UserSchema.statics.hashPassword = function(password) {
