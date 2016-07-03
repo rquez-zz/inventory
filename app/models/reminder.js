@@ -1,8 +1,3 @@
 const mongoose = require('mongoose');
 
-const ReminderSchema = mongoose.Schema({
-    message: { type: String, required: true },
-    date: { type: Date, required: true }
-});
-
-module.exports = ReminderSchema
+module.exports = mongoose.model('Reminder', require('./schema').reminder);
