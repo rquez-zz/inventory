@@ -14,6 +14,11 @@ const user = [
         handler: authHandler.authCreate
     },
     {
+        method: 'POST',
+        path: '/user/password',
+        handler: userHandler.updatePassword
+    },
+    {
         method: 'PUT',
         path: '/user',
         handler: userHandler.updateUser

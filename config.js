@@ -16,6 +16,9 @@ const config = {
             handler: require('./app/handlers/auth').authCallback,
             scope: 'https://www.googleapis.com/auth/plus.profile.emails.read'
         }
+    },
+    email: {
+        from: 'inventory.emailer@gmail.com'
     }
 };
 
