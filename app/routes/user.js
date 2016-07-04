@@ -1,4 +1,5 @@
 const userHandler = require('../handlers/user');
+const authHandler = require('../handlers/auth');
 
 const user = [
     {
@@ -8,19 +9,24 @@ const user = [
         config: { auth: false }
     },
     {
+        method: 'POST',
+        path: '/user/auth',
+        handler: authHandler.authCreate
+    },
+    {
         method: 'PUT',
         path: '/user',
-        handler: userHandler.updateUser,
+        handler: userHandler.updateUser
     },
     {
         method: 'GET',
         path: '/user',
-        handler: userHandler.getUser,
+        handler: userHandler.getUser
     },
     {
         method: 'DELETE',
         path: '/user',
-        handler: userHandler.deleteUser,
+        handler: userHandler.deleteUser
     }
 ];
 
