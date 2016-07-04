@@ -1,8 +1,8 @@
 const Hapi = require('hapi');
 const fs = require('fs');
 
+const config = require('./config');
 const jwtHelper = require('./app/helpers/jwt');
-const config = require('./config.js');
 const database = require('./app/services/database');
 
 const server = new Hapi.Server();
