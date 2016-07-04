@@ -13,7 +13,9 @@
     "bcryptjs": "^2.3.0",
     "blipp": "^2.3.0",
     "hapi": "^13.4.1",
+    "hapi-auth-jwt": "^4.0.0",
     "hapi-router": "^3.5.0",
+    "jsonwebtoken": "^7.0.1",
     "mongoose": "^4.5.2",
     "nodemon": "^1.9.2"
   }
