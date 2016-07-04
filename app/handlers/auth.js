@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
 const Boom = require('boom');
+const jsonwebtoken = require('jsonwebtoken');
+const fs = require('fs');
+
 const jwtHelper = require('../helpers/jwt');
 
 const User = require('../models/user');
@@ -71,6 +74,76 @@ const auth = {
             return reply(user).header('location', '/user/' + user.username);
         }).catch(err => {
             return reply(Boom.badImplementation('Error saving user to db.', err));
+        });
+    },
+    resetPassword: (req, reply) => {
+        User.findOne({'email': req.payload.email }).then(user => {
+
+            if (!user)
+                return Promise.reject(Boom.conflict('User not found.'));
+
+            const jwt = jwtHelper.sign({ email: user.email });
+            const resetPasswordUrl = `${process.env.BASE_URL}/reset-password-confirm/${jwt}`;
+            const password = fs.readFile('./emailPassword', (err, data) => {
+                const send = {
+                    from: require('../../config').email.from,
+                    to: user.email,
+                    subject: 'Reset Password',
+                    html: '<p>Click here <a href="' + resetPasswordUrl + '">here</a> to reset password.</p>'
+                };
+                const smtpConfig = {
+                    host: 'smtp.gmail.com',
+                    port: 465,
+                    secure: true,
+                    auth: {
+                        user: require('../../config').email.from,
+                        pass: data
+                    }
+                };
+                const transporter = require('nodemailer').createTransport(smtpConfig);
+
+                transporter.sendMail(send, (err, info) => {
+                    return reply();
+                });
+            });
+        });
+    },
+    resetPasswordAuth: (req, reply) => {
+        const key = fs.readFileSync(require('../../config').key);
+        jsonwebtoken.verify(req.params.token, key, (err, decoded) => {
+            User.findOne({ 'email': decoded.email }).then(user => {
+
+                if (!user)
+                    return reply(Boom.notFound('User not found'));
+
+                const token = {
+                    email: user.email,
+                    username: user.username,
+                    id: user._id,
+                    passwordUpdate: true
+                };
+                return reply(jwtHelper.sign(token));
+            }).catch(err => {
+                return reply(Boom.badImplementation('Error getting user from db.', err));
+            });
+        });
+    },
+    resetPasswordConfirm: (req, reply) => {
+        User.findOne({ 'email': req.auth.credentials.email }).then(user => {
+            if (!user)
+                return reply(Boom.notFound('User not found'));
+
+            const token = {
+                email: user.email,
+                username: user.username,
+                id: user._id,
+                passwordUpdate: true
+            };
+
+            if (user.isValidPassword(req.payload.password))
+                return reply({ jwt: jwtHelper.sign(token) });
+            else
+                return reply(Boom.unauthorized('Invalid password'));
         });
     },
     login: (req, reply) => {
