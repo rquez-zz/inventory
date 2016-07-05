@@ -1,0 +1,12 @@
+mongodb:
+  image: mongo
+  container_name: mongodb
+backend:
+  build: ./backend
+  container_name: backend
+  ports:
+    - "3000:8080"
+  environment:
+    - MONGO_URL=mongodb://mongodb/inventory
+  links:
+    - mongodb
