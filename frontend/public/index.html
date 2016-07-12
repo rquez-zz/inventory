@@ -7,8 +7,12 @@
         <script src="js/main.js"></script>
     </head>
 <body>
-    <div ng-app="app" ng-controller="MainController">
-        <h1>{{message}}</h1>
+    <div ng-app="app" ng-controller="AuthController">
+        <p>Username: <input type="text" name="username" ng-model="username" required /></p>
+        <p>Password : <input type="text" name="password" ng-model="password" required /></p>
+        <button ng-click="login()">Submit</button>
+        <hr/>
+        {{ loginResponse }}
     </div>
 </body>
 </html>
