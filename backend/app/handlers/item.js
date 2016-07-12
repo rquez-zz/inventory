@@ -27,7 +27,7 @@ const item = {
                 var newItem = new Item({
                     name: req.payload.name,
                     quantity: req.payload.quantity,
-                    categoryName: req.payload.categoryName,
+                    categoryName: user.categories.id(req.payload.categoryId).name,
                     categoryId: req.payload.categoryId,
                     importantDate: new Reminder({
                         message: req.payload.importantDate.message,
