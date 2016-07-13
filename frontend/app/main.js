@@ -1,10 +1,16 @@
-const angular = require('angular');
+require('angular');
+require('angular-resource');
 
 const AuthController = require('./controllers/AuthController');
+const UserController = require('./controllers/UserController');
 
 const app = angular.module('app', ['ngResource']);
 
-// TODO: Make this an env
-app.constant('BACK', 'http://localhost:3000');
+app.constant('BASE', 'http://localhost:3000');
 
-app.controller('AuthController', ['$scope', '$http', 'BACK', AuthController]);
+app.factory('User', ($resource, BASE) => {
+    return $resource(BASE + '/user/:id', {id:'@id'});
+});
+
+app.controller('AuthController', ['$scope', '$http', 'BASE', AuthController]);
+app.controller('UserController', ['$scope', 'User', UserController]);
