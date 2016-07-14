@@ -12,8 +12,8 @@ const apiKeyJson = JSON.parse(fs.readFileSync(config.google.key));
 
 process.env.GOOGLE_CLIENT_ID = apiKeyJson.web.client_id;
 process.env.GOOGLE_CLIENT_SECRET = apiKeyJson.web.client_secret;
-process.env.BASE_URL = `${config.protocol}://localhost:${config.connection.port}`;
-process.env.PORT = config.connection.port;
+process.env.BASE_URL = apiKeyJson.web.javascript_origins[0];
+process.env.PORT = '3000';
 
 server.connection(config.connection);
 
