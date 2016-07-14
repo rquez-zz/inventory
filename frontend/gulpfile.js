@@ -4,18 +4,11 @@ const connect = require('gulp-connect');
 const browserify = require('browserify');
 const source = require('vinyl-source-stream');
 
-gulp.task('connect', () => {
-    connect.server({
-        root: 'public',
-        port: 4000
-    });
-});
-
 gulp.task('browserify', () => {
     return browserify('./app/main.js')
         .bundle()
         .pipe(source('main.js'))
-        .pipe(gulp.dest('./public/js/'));
+        .pipe(gulp.dest('../backend/public/js/'));
 });
 
 gulp.task('watch', () => {
@@ -23,12 +16,18 @@ gulp.task('watch', () => {
     gulp.watch('./sass/style.sass', ['sass']);
 });
 
-gulp.task('default', ['connect', 'watch']);
+gulp.task('default', ['index', 'sass', 'browserify', 'watch']);
 
 gulp.task('fonts', () => {
     return gulp
         .src('./node_modules/bootstrap-sass/assets/fonts/**/*')
-        .pipe(gulp.dest('./public/fonts/'));
+        .pipe(gulp.dest('../backend/public/fonts/'));
+});
+
+gulp.task('index', () => {
+    return gulp
+        .src('./public/index.html')
+        .pipe(gulp.dest('../backend/public/'));
 });
 
 gulp.task('sass', ['fonts'], () => {
@@ -38,5 +37,5 @@ gulp.task('sass', ['fonts'], () => {
             errLogToConsole:true,
             outputStyle: 'compressed'
         }).on('error', sass.logError))
-        .pipe(gulp.dest('./public/css/'));
+        .pipe(gulp.dest('../backend/public/css/'));
 });
