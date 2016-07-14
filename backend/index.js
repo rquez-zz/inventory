@@ -19,6 +19,9 @@ server.connection(config.connection);
 
 server.register([
 {
+    register: require('inert')
+},
+{
     register: require('hapi-auth-google'),
     options: config.google.opts
 },
