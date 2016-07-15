@@ -12,6 +12,7 @@
   "dependencies": {
     "bcryptjs": "^2.3.0",
     "blipp": "^2.3.0",
+    "googleapis": "^11.0.0",
     "hapi": "^13.4.1",
     "hapi-auth-google": "^9.0.0",
     "hapi-auth-jwt": "^4.0.0",

@@ -10,34 +10,48 @@ const jwtHelper = require('../helpers/jwt');
 const User = require('../models/user');
 const Category = require('../models/category');
 
+const google = require('googleapis');
+const OAuth2Client = google.auth.OAuth2;
+const plus = google.plus('v1');
+
 const auth = {
     googleAuth: (req, reply) => {
-        const authUrl = require('../../index').generate_google_oauth2_url();
-        reply().redirect(authUrl);
-    },
-    authCallback: (req, reply, tokens, profile) => {
-        const jwt = require('../helpers/jwt');
-        const email = profile.emails[0].value;
 
-        User.findOne({'email': email}).then(user => {
+        const oauth2_client = new OAuth2Client(
+            process.env.GOOGLE_CLIENT_ID,
+            process.env.GOOGLE_CLIENT_SECRET,
+            process.env.BASE_URL + process.env.REDIRECT_URL
+        );
 
-            if (user) {
-                const token = {
-                    email: email,
-                    username: user.username,
-                    id: user._id
-                };
-                return reply({ jwt: jwt.sign(token) });
-            } else {
+        oauth2_client.getToken(req.payload.code, (err, tokens) => {
+            oauth2_client.setCredentials(tokens);
+            plus.people.get({ userId: 'me', auth: oauth2_client }, (err, profile) => {
 
-                // If user doesn't exist, return their email
-                const token = {
-                    email: email
-                };
-                return reply({ jwt: jwt.sign(token)});
-            }
-        }).catch(err => {
-            return reply(Boom.badImplementation('Error authenticating user.', err));
+                const jwt = require('../helpers/jwt');
+                const email = profile.emails[0].value;
+
+                User.findOne({'email': email}).then(user => {
+
+                    if (user) {
+                        const token = {
+                            email: email,
+                            username: user.username,
+                            id: user._id
+                        };
+                        return reply({ jwt: jwt.sign(token)});
+                    } else {
+
+                        // If user doesn't exist, return their email
+                        const token = {
+                            email: email
+                        };
+                        return reply({ jwt: jwt.sign(token)});
+                    }
+                }).catch(err => {
+                    return reply(Boom.badImplementation('Error authenticating user.', err));
+                });
+
+            });
         });
     },
     authCreate: (req, reply) => {
@@ -177,7 +191,6 @@ const auth = {
             return reply(Boom.badImplementation('Error finding user', err));
         });
     }
-
 };
 
 module.exports = auth;

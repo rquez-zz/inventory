@@ -8,8 +8,8 @@ const auth = [
         config: { auth: false }
     },
     {
-        method: 'GET',
-        path: '/login',
+        method: 'POST',
+        path: '/auth',
         handler: authHandler.googleAuth,
         config: { auth: false }
     },

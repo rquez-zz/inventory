@@ -13,6 +13,7 @@ const apiKeyJson = JSON.parse(fs.readFileSync(config.google.key));
 process.env.GOOGLE_CLIENT_ID = apiKeyJson.web.client_id;
 process.env.GOOGLE_CLIENT_SECRET = apiKeyJson.web.client_secret;
 process.env.BASE_URL = apiKeyJson.web.javascript_origins[0];
+process.env.REDIRECT_URL = '/auth';
 process.env.PORT = '3000';
 
 server.connection(config.connection);
@@ -20,10 +21,6 @@ server.connection(config.connection);
 server.register([
 {
     register: require('inert')
-},
-{
-    register: require('hapi-auth-google'),
-    options: config.google.opts
 },
 {
     register: require('blipp'),

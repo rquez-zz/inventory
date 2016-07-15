@@ -12,8 +12,8 @@
         <p>Username: <input type="text" name="username" ng-model="username" required /></p>
         <p>Password : <input type="text" name="password" ng-model="password" required /></p>
         <button ng-click="login()">Login</button>
+        <button ng-click="loginGoogle()">Sign in with Google</button>
         <hr/>
-        {{ loginResponse }}
     </div>
     <div ng-controller="UserController">
         <p>Sign Up</p>
@@ -22,7 +22,6 @@
         <p>Password : <input type="text" name="password" ng-model="password" required /></p>
         <button ng-click="create()">Create</button>
         <hr/>
-        {{ createUserResponse }}
     </div>
 </body>
 </html>

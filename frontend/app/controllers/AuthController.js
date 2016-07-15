@@ -1,17 +1,21 @@
-module.exports = ($scope, $http, BASE) => {
+module.exports = ($scope, $window, $auth, $http, Login) => {
+
     $scope.loginResponse = '';
+
     $scope.login = () => {
-        $http({
-                method: 'POST',
-                url: BASE + '/login',
-                data: {
-                    username: $scope.username,
-                    password: $scope.password
-                }
-            }).then((res) => {
-                $scope.loginResponse = res.data;
-                console.log(res);
-            });
+        var login = new Login();
+        login.username = $scope.username;
+        login.password = $scope.password;
+
+        Login.save(login, (data) => {
+            $window.sessionStorage.token = data.jwt;
+        });
+    };
+
+    $scope.loginGoogle = () => {
+        $auth.authenticate('google').then((response) => {
+            $window.sessionStorage.token = response.data.jwt;
+        });
     };
 };
 
