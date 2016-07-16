@@ -1,15 +1,26 @@
 const categoryHandler = require('../handlers/category');
+const validator = require('../helpers/validator');
 
 const category = [
     {
         method: 'POST',
         path: '/category',
-        handler: categoryHandler.createCategory
+        handler: categoryHandler.createCategory,
+        config: {
+            validate: {
+                payload: validator.createCategory
+            }
+        }
     },
     {
         method: 'PUT',
         path: '/category/{id}',
-        handler: categoryHandler.updateCategory
+        handler: categoryHandler.updateCategory,
+        config: {
+            validate: {
+                payload: validator.updateCategory
+            }
+        }
     },
     {
         method: 'GET',
