@@ -1,23 +1,13 @@
 require('angular');
-require('angular-resource');
 require('angular-touch');
 require('angular-animate');
 require('angular-ui-bootstrap');
-require('angular-route');
 require('satellizer');
 
 const AuthController = require('./controllers/AuthController');
 const UserController = require('./controllers/UserController');
 
-const app = angular.module('app', ['satellizer', 'ngResource', 'ui.bootstrap']);
-
-app.factory('User', ($resource) => {
-    return $resource('/user/:id', {id:'@id'});
-});
-
-app.factory('Login', ($resource) => {
-    return $resource('/login');
-});
+const app = angular.module('app', ['satellizer', 'ui.bootstrap']);
 
 app.config(($authProvider) => {
     $authProvider.google({
@@ -27,6 +17,5 @@ app.config(($authProvider) => {
     });
 });
 
-app.controller('AuthController', ['$scope', '$window', '$auth', '$http', 'Login', AuthController]);
-app.controller('UserController', ['$scope', 'User', UserController]);
-
+app.controller('AuthController', ['$scope', '$window', '$auth', '$http', AuthController]);
+app.controller('UserController', ['$scope', '$window', '$http', UserController]);

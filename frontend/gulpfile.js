@@ -14,6 +14,7 @@ gulp.task('browserify', () => {
 gulp.task('watch', () => {
     gulp.watch('./app/**/*.js', ['browserify']);
     gulp.watch('./sass/style.sass', ['sass']);
+    gulp.watch('./public/index.html', ['index']);
 });
 
 gulp.task('default', ['index', 'sass', 'browserify', 'watch']);
