@@ -1,21 +1,47 @@
-module.exports = ($scope, $window, $auth, $http, Login) => {
+module.exports = ($scope, $window, $auth, $http) => {
 
-    $scope.loginResponse = '';
+    $scope.login = {
+        // Default Login Using Username/Password
+        normal: () => {
+            const req = {
+                method: 'POST',
+                url: '/login',
+                data: {
+                    username: $scope.login.username,
+                    password: $scope.login.password
+                }
+            };
 
-    $scope.login = () => {
-        var login = new Login();
-        login.username = $scope.username;
-        login.password = $scope.password;
-
-        Login.save(login, (data) => {
-            $window.sessionStorage.token = data.jwt;
-        });
+            $http(req).then(response => {
+                $window.sessionStorage.token = response.jwt;
+            }, (error) => {
+                $scope.login.result = error.data.message;
+            });
+        },
+        // Google Authentication Login
+        google: () => {
+            $auth.authenticate('google').then((response) => {
+                $window.sessionStorage.token = response.data.jwt;
+            }, (error) => {
+                $scope.login.result = error.data.message;
+            });
+        }
     };
 
-    $scope.loginGoogle = () => {
-        $auth.authenticate('google').then((response) => {
-            $window.sessionStorage.token = response.data.jwt;
+    // Reset Password, Email Workflow
+    $scope.forgotPassword = () => {
+        const req = {
+            method: 'POST',
+            url: '/reset-password',
+            data: {
+                email: $scope.forgotPassword.email
+            }
+        };
+
+        $http(req).then(res => {
+            $scope.forgotPassword.result = 'Email Sent!';
+        }, (error) => {
+            $scope.forgotPassword.result = error.data.message;
         });
     };
 };
-
