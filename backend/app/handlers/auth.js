@@ -33,6 +33,7 @@ const auth = {
                 User.findOne({'email': email}).then(user => {
 
                     if (user) {
+                        // If user exists, give token
                         const token = {
                             email: email,
                             username: user.username,
@@ -42,25 +43,20 @@ const auth = {
                     } else {
 
                         // If user doesn't exist, return their email
-                        const token = {
-                            email: email
-                        };
+                        const token = { email: email };
                         return reply({ jwt: jwt.sign(token)});
                     }
-                }).catch(err => {
-                    return reply(Boom.badImplementation('Error authenticating user.', err));
+                }).catch(error => {
+                    return reply(error);
                 });
 
             });
         });
     },
-    authCreate: (req, reply) => {
+    googleAuthCreate: (req, reply) => {
 
         if (!req.auth.credentials.email)
             return reply(Boom.unauthorized('Google user not authenticated.'));
-
-        if (!req.auth.credentials.email === req.payload.email)
-            return reply(Boom.badData('Email authenticated mismatch.'));
 
         User.findOne({'email': req.auth.credentials.email }).then(user => {
 
@@ -75,7 +71,7 @@ const auth = {
                 return Promise.reject(Boom.conflict('Username for this user already exists.'));
             else {
                 const newUser = new User({
-                    email: req.payload.email,
+                    email: req.auth.credentials.email,
                     username: req.payload.username,
                     categories: [new Category({name: 'main', color: 'blue'})]
                 });
@@ -86,15 +82,16 @@ const auth = {
 
             user.password = undefined; // exclude the hashed password
             return reply(user).header('location', '/user/' + user.username);
-        }).catch(err => {
-            return reply(Boom.badImplementation('Error saving user to db.', err));
+        }).catch(error => {
+            return reply(error);
         });
     },
     resetPassword: (req, reply) => {
-        User.findOne({'email': req.payload.email }).then(user => {
+
+        User.findOne({'email':req.payload.email}).then(user => {
 
             if (!user)
-                return Promise.reject(Boom.conflict('User not found.'));
+                return Promise.reject(Boom.notFound('Email not found.'));
 
             const jwt = jwtHelper.sign({ email: user.email });
             const resetPasswordUrl = `${process.env.BASE_URL}/reset-password-confirm/${jwt}`;
@@ -120,15 +117,19 @@ const auth = {
                     return reply();
                 });
             });
+
+        }).catch(error => {
+            return reply(error);
         });
     },
     resetPasswordAuth: (req, reply) => {
+
         const key = fs.readFileSync(require('../../config').key);
         jsonwebtoken.verify(req.params.token, key, (err, decoded) => {
             User.findOne({ 'email': decoded.email }).then(user => {
 
                 if (!user)
-                    return reply(Boom.notFound('User not found'));
+                    return Promise.reject(Boom.notFound('User not found'));
 
                 const token = {
                     email: user.email,
@@ -137,15 +138,17 @@ const auth = {
                     passwordUpdate: true
                 };
                 return reply(jwtHelper.sign(token));
-            }).catch(err => {
-                return reply(Boom.badImplementation('Error getting user from db.', err));
+            }).catch(error => {
+                return reply(error);
             });
         });
     },
-    resetPasswordConfirm: (req, reply) => {
+    updatePassword: (req, reply) => {
+
         User.findOne({ 'email': req.auth.credentials.email }).then(user => {
+
             if (!user)
-                return reply(Boom.notFound('User not found'));
+                return Promise.reject(Boom.notFound('User not found'));
 
             const token = {
                 email: user.email,
@@ -157,7 +160,10 @@ const auth = {
             if (user.isValidPassword(req.payload.password))
                 return reply({ jwt: jwtHelper.sign(token) });
             else
-                return reply(Boom.unauthorized('Invalid password'));
+                return Promise.reject(Boom.unauthorized('Invalid password'));
+
+        }).catch(error => {
+            reply(error);
         });
     },
     login: (req, reply) => {
@@ -171,10 +177,10 @@ const auth = {
         query.then(user => {
 
             if (!user)
-                return reply(Boom.notFound('User not found'));
+                return Promise.reject(Boom.notFound('User not found'));
 
             if (!user.password)
-                return reply(Boom.conflict('No password for user. Must authenticate with Google.'));
+                return Promise.reject(Boom.conflict('No password for user. Must authenticate with Google.'));
 
             const token = {
                 email: user.email,
@@ -187,8 +193,8 @@ const auth = {
             else
                 return reply(Boom.unauthorized('Invalid password'));
 
-        }).catch(err => {
-            return reply(Boom.badImplementation('Error finding user', err));
+        }).catch(error => {
+            return reply(error);
         });
     }
 };

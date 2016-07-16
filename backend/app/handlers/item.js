@@ -44,67 +44,67 @@ const item = {
             }).then(user => {
                 return reply(user.inventory.id(itemId));
             }).catch(err => {
-                return reply(Boom.badImplementation('Error creating item.', err));
+                return reply(err);
             });
     },
     updateItem: (req, reply) => {
 
         User.findOne({
-                'username': req.auth.credentials.username,
-                'inventory._id': req.params.id
-            }).then(user => {
+            'username': req.auth.credentials.username,
+            'inventory._id': req.params.id
+        }).then(user => {
 
-                if (!user)
-                    return Promise.reject(Boom.notFound('Item not found.'));
+            if (!user)
+                return Promise.reject(Boom.notFound('Item not found.'));
 
-                if (!user.categories.id(req.payload.category))
-                    return Promise.reject(Boom.notFound('Category not found.'));
+            if (!user.categories.id(req.payload.category))
+                return Promise.reject(Boom.notFound('Category not found.'));
 
-                user.inventory.id(req.params.id).name = req.payload.name;
-                user.inventory.id(req.params.id).quantity = req.payload.quantity;
-                user.inventory.id(req.params.id).categoryId = req.payload.categoryId;
-                user.inventory.id(req.params.id).categoryName = req.payload.categoryName;
-                user.inventory.id(req.params.id).importantDate = req.payload.importantDate
+            user.inventory.id(req.params.id).name = req.payload.name;
+            user.inventory.id(req.params.id).quantity = req.payload.quantity;
+            user.inventory.id(req.params.id).categoryId = req.payload.categoryId;
+            user.inventory.id(req.params.id).categoryName = req.payload.categoryName;
+            user.inventory.id(req.params.id).importantDate = req.payload.importantDate
 
-                return user.save();
-            }).then(user => {
-                return reply(user.inventory.id(req.params.id));
-            }).catch(err => {
-                return reply(Boom.badImplementation('Error updating item.', err));
-            });
+            return user.save();
+        }).then(user => {
+            return reply(user.inventory.id(req.params.id));
+        }).catch(err => {
+            return reply(err);
+        });
     },
     getItem: (req, reply) => {
 
         User.findOne({
-                    'username': req.auth.credentials.username,
-                    'inventory._id': req.params.id
-            }).then(user => {
+                'username': req.auth.credentials.username,
+                'inventory._id': req.params.id
+        }).then(user => {
 
-                if (!user)
-                    return reply(Boom.notFound('Item not found'));
+            if (!user)
+                return reply(Boom.notFound('Item not found'));
 
-                return reply(user.inventory.id(req.params.id));
-            }).catch(err => {
-                return reply(Boom.badImplementation('Error getting item from db.', err));
-            })
+            return reply(user.inventory.id(req.params.id));
+        }).catch(err => {
+            return reply(err);
+        })
     },
     deleteItem: (req, reply) => {
 
         User.findOne({
-                    'username': req.auth.credentials.username,
-                    'inventory._id': req.params.id
-            }).then(user => {
+                'username': req.auth.credentials.username,
+                'inventory._id': req.params.id
+        }).then(user => {
 
-                if (!user)
-                    return reply(Boom.notFound('Item not found'));
+            if (!user)
+                return reply(Boom.notFound('Item not found'));
 
-                user.inventory.id(req.params.id).remove();
-                return user.save();
-            }).then(user => {
-                return reply().code(204);
-            }).catch(err => {
-                return reply(Boom.badImplementation('Error removing item from db.', err));
-            })
+            user.inventory.id(req.params.id).remove();
+            return user.save();
+        }).then(user => {
+            return reply().code(204);
+        }).catch(err => {
+            return reply(err);
+        })
     }
 };
 

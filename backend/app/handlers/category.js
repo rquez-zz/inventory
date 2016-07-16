@@ -30,7 +30,7 @@ const category = {
             }).then(user => {
                 return reply(user.categories.id(categoryId));
             }).catch(err => {
-                return reply(Boom.badImplementation('Error creating category.', err));
+                return reply(err);
             });
     },
     updateCategory: (req, reply) => {
@@ -38,53 +38,53 @@ const category = {
         User.findOne({
                 'username': req.auth.credentials.username,
                 'categories._id': req.params.id
-            }).then(user => {
+        }).then(user => {
 
-                if (!user)
-                    return Promise.reject(Boom.notFound('Category not found.'));
+            if (!user)
+                return Promise.reject(Boom.notFound('Category not found.'));
 
-                user.categories.id(req.params.id).name = req.payload.name;
-                user.categories.id(req.params.id).color = req.payload.color;
+            user.categories.id(req.params.id).name = req.payload.name;
+            user.categories.id(req.params.id).color = req.payload.color;
 
-                return user.save();
-            }).then(user => {
-                return reply(user.categories.id(req.params.id));
-            }).catch(err => {
-                return reply(Boom.badImplementation('Error updating category.', err));
-            });
+            return user.save();
+        }).then(user => {
+            return reply(user.categories.id(req.params.id));
+        }).catch(err => {
+            return reply(err);
+        });
     },
     getCategory: (req, reply) => {
 
         User.findOne({
                     'username': req.auth.credentials.username,
                     'categories._id': req.params.id
-            }).then(user => {
+        }).then(user => {
 
-                if (!user)
-                    return reply(Boom.notFound('Category not found'));
+            if (!user)
+                return reply(Boom.notFound('Category not found'));
 
-                return reply(user.categories.id(req.params.id));
-            }).catch(err => {
-                return reply(Boom.badImplementation('Error getting category from db.', err));
-            })
+            return reply(user.categories.id(req.params.id));
+        }).catch(err => {
+            return reply(err);
+        })
     },
     deleteCategory: (req, reply) => {
 
         User.findOne({
                     'username': req.auth.credentials.username,
                     'categories._id': req.params.id
-            }).then(user => {
+        }).then(user => {
 
-                if (!user)
-                    return reply(Boom.notFound('Category not found'));
+            if (!user)
+                return reply(Boom.notFound('Category not found'));
 
-                user.categories.id(req.params.id).remove();
-                return user.save();
-            }).then(user => {
-                return reply().code(204);
-            }).catch(err => {
-                return reply(Boom.badImplementation('Error removing category from db.', err));
-            })
+            user.categories.id(req.params.id).remove();
+            return user.save();
+        }).then(user => {
+            return reply().code(204);
+        }).catch(err => {
+            return reply(err);
+        })
     }
 };
 

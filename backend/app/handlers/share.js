@@ -51,7 +51,7 @@ const share = {
         }).then(() => {
             return reply().code(201);
         }).catch(err => {
-            return reply(Boom.badImplementation('Error adding shared user.', err));
+            return reply(err);
         });
     },
     getShare: (req, reply) => {
@@ -87,7 +87,7 @@ const share = {
         }).then(result => {
             return reply(result);
         }).catch(err => {
-            return reply(Boom.badImplementation('Error adding shared user.', err));
+            return reply(err);
         });
     },
     deleteShare: (req, reply) => {
@@ -128,7 +128,7 @@ const share = {
         }).then(() => {
             return reply().code(204);
         }).catch(err => {
-            return reply(Boom.badImplementation('Error adding shared user.', err));
+            return reply(err);
         });
     }
 };
