@@ -1,4 +1,4 @@
-module.exports = ($scope, $window, $auth, $http) => {
+app.module('app').controller('AuthController', ($scope, $window, $auth, $http) => {
 
     $scope.login = {
         // Default Login Using Username/Password
