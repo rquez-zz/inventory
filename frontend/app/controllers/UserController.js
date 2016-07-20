@@ -1,45 +1,4 @@
-module.exports = ($scope, $window, $http) => {
-
-    $scope.create = {
-        // Create Signed In Google User
-        google: () => {
-            const req = {
-                method: 'POST',
-                url: '/user/auth',
-                skipAuthorization: true,
-                headers: {
-                    'Authorization': 'Bearer ' + $window.sessionStorage.token
-                },
-                data: {
-                    username: $scope.create.google.username
-                }
-            };
-
-            $http(req).then(response => {
-                console.log(response.data);
-            }, error => {
-                $scope.create.google.result = error.data.message;
-            });
-        },
-        // Create User With Username/Password
-        normal: () => {
-            const req = {
-                method: 'POST',
-                url: '/user',
-                data: {
-                    username: $scope.create.normal.username,
-                    password: $scope.create.normal.password,
-                    email: $scope.create.normal.email
-                }
-            };
-
-            $http(req).then(response => {
-                console.log(response.data);
-            }, error => {
-                $scope.create.normal.result = error.data.message;
-            });
-        }
-    };
+module.exports = function($scope, $window, $http) {
 
     $scope.update = {
         // Update Password
@@ -83,22 +42,6 @@ module.exports = ($scope, $window, $http) => {
         }
     };
 
-    // Get User
-    $scope.get = () => {
-        const req = {
-            method: 'GET',
-            url: '/user',
-            skipAuthorization: true,
-            headers: {
-                'Authorization': 'Bearer ' + $window.sessionStorage.token
-            }
-        };
-        $http(req).then(response => {
-            console.log(response.data);
-        }, error => {
-            $scope.get.result = error.data.message;
-        });
-    };
 
     // Delete User
     $scope.delete = () => {

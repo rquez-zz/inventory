@@ -1,47 +1,169 @@
-app.module('app').controller('AuthController', ($scope, $window, $auth, $http) => {
+module.exports = function($scope, $window, $auth, $http, $state, $mdDialog) {
 
+    // Login
     $scope.login = {
-        // Default Login Using Username/Password
+        // Using Username/Password
         normal: () => {
             const req = {
                 method: 'POST',
                 url: '/login',
                 data: {
-                    username: $scope.login.username,
-                    password: $scope.login.password
+                    username: $scope.username,
+                    password: $scope.password
                 }
             };
 
             $http(req).then(response => {
+                // Store JWT
                 $window.sessionStorage.token = response.jwt;
+
+                // Go to Dashboard
+                $state.go('dashboard');
             }, (error) => {
-                $scope.login.result = error.data.message;
+                $scope.status = error.data.message;
             });
         },
-        // Google Authentication Login
-        google: () => {
+
+        // Using Google Authentication
+        google: (event) => {
             $auth.authenticate('google').then((response) => {
-                $window.sessionStorage.token = response.data.jwt;
+                if (response.data.jwt) {
+
+                    // Store JWT
+                    $window.sessionStorage.token = response.data.jwt;
+
+                } else {
+
+                    // Store JWT that has email
+                    $window.sessionStorage.email = response.data.email;
+
+                    // User hasn't been created, choose username
+                    $mdDialog.show({
+                        templateUrl: '/views/partials/create-user-google.html',
+                        clickOutsideToClose: true,
+                        targetEv: event,
+                        controller: CreateGoogleUserController
+                    })
+                    .then((status) => {
+                        // Store JWT
+                        $window.sessionStorage.token = status;
+                    });
+                }
+
+                // Go to Dashboard
+                $state.go('dashboard');
+
             }, (error) => {
-                $scope.login.result = error.data.message;
+                $scope.status = error.data.message;
             });
         }
     };
 
-    // Reset Password, Email Workflow
-    $scope.forgotPassword = () => {
+    // Create User
+    $scope.create = (event) => {
+        $mdDialog.show({
+            templateUrl: '/views/partials/create-user-normal.html',
+            clickOutsideToClose: true,
+            targetEv: event,
+            controller: CreateUserController
+        })
+        .then((status) => {
+            // Store JWT
+            $window.sessionStorage.token = status;
+
+            // Go to Dashboard
+            $state.go('dashboard');
+        });
+    };
+
+    // Forgot Password, get user email
+    $scope.forgot = (event) => {
+        $mdDialog.show({
+            templateUrl: '/views/partials/forgot-password.html',
+            clickOutsideToClose: true,
+            targetEv: event,
+            controller: ForgotPasswordController
+        })
+        .then((status) => {
+            $scope.status = 'Email Sent!';
+        });
+    };
+};
+
+function CreateGoogleUserController($scope, $window, $http, $mdDialog) {
+
+    // Create User With Username/Password
+    $scope.create = () => {
+        const req = {
+            method: 'POST',
+            url: '/user/auth',
+            data: {
+                username: $scope.username,
+                email: $scope.email
+            },
+            skipAuthorization: true,
+            headers: {
+                'Authorization': 'Bearer ' + $window.sessionStorage.email
+            }
+        };
+
+        $http(req).then(response => {
+            $mdDialog.hide(response.data.jwt);
+        }, error => {
+            $scope.result = error.data.message;
+        });
+    };
+
+    $scope.cancel = () => {
+        $mdDialog.cancel();
+    };
+}
+
+function ForgotPasswordController($scope, $http, $mdDialog) {
+
+    $scope.send = () => {
         const req = {
             method: 'POST',
             url: '/reset-password',
             data: {
-                email: $scope.forgotPassword.email
+                email: $scope.email
             }
         };
 
-        $http(req).then(res => {
-            $scope.forgotPassword.result = 'Email Sent!';
+        $http(req).then(response => {
+            $mdDialog.hide(response.status);
         }, (error) => {
-            $scope.forgotPassword.result = error.data.message;
+            $scope.status = error.data.message;
         });
     };
-};
+
+    $scope.cancel = () => {
+        $mdDialog.cancel();
+    };
+}
+
+function CreateUserController($scope, $http, $mdDialog) {
+
+    // Create User With Username/Password
+    $scope.create = () => {
+        const req = {
+            method: 'POST',
+            url: '/user',
+            data: {
+                username: $scope.username,
+                password: $scope.password,
+                email: $scope.email
+            }
+        };
+
+        $http(req).then(response => {
+            $mdDialog.hide(response.data.jwt);
+        }, error => {
+            $scope.status = error.data.message;
+        });
+    };
+
+    $scope.cancel = () => {
+        $mdDialog.cancel();
+    };
+}
