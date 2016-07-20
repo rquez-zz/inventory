@@ -1,13 +1,12 @@
 require('angular');
-require('angular-touch');
-require('angular-animate');
-require('angular-ui-bootstrap');
 require('satellizer');
+require('angular-ui-router');
+require('angular-aria');
+require('angular-animate');
+require('angular-material');
+require('angular-material-data-table');
 
-const AuthController = require('./controllers/AuthController');
-const UserController = require('./controllers/UserController');
-
-const app = angular.module('app', ['satellizer', 'ui.bootstrap']);
+const app = angular.module('app', ['satellizer', 'ui.router', 'ngAria', 'ngAnimate', 'ngMaterial', 'md.data.table']);
 
 app.config(($authProvider) => {
     $authProvider.google({
