@@ -14,12 +14,12 @@ const share = [
     },
     {
         method: 'GET',
-        path: '/category/{cid}/share/{tid}',
+        path: '/category/{cid}/share/{friendUsername}',
         handler: shareHandler.getShare,
     },
     {
         method: 'DELETE',
-        path: '/category/{cid}/share/{tid}',
+        path: '/category/{cid}/share/{friendUsername}',
         handler: shareHandler.deleteShare,
     }
 ];
