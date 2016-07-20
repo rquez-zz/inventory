@@ -24,8 +24,13 @@ const category = [
     },
     {
         method: 'GET',
+        path: '/category',
+        handler: categoryHandler.getCategories
+    },
+    {
+        method: 'GET',
         path: '/category/{id}',
-        handler: categoryHandler.getCategory
+        handler: categoryHandler.getItemsForCategory
     },
     {
         method: 'DELETE',
