@@ -1,5 +1,6 @@
 public/js
 public/css
 public/fonts
+sass/style.css
 .sass-cache
 node_modules
