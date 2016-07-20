@@ -1,8 +1,10 @@
 const gulp = require('gulp');
 const sass = require('gulp-sass');
+const concat = require('gulp-concat');
 const connect = require('gulp-connect');
 const browserify = require('browserify');
 const source = require('vinyl-source-stream');
+const merge = require('merge-stream');
 
 gulp.task('browserify', () => {
     return browserify('./app/main.js')
@@ -14,29 +16,38 @@ gulp.task('browserify', () => {
 gulp.task('watch', () => {
     gulp.watch('./app/**/*.js', ['browserify']);
     gulp.watch('./sass/style.sass', ['sass']);
-    gulp.watch('./public/index.html', ['index']);
+    gulp.watch('./index.html', ['index']);
+    gulp.watch('./views/*.html', ['views']);
+    gulp.watch('./views/partials/*.html', ['partials']);
 });
 
-gulp.task('default', ['index', 'sass', 'browserify', 'watch']);
-
-gulp.task('fonts', () => {
-    return gulp
-        .src('./node_modules/bootstrap-sass/assets/fonts/**/*')
-        .pipe(gulp.dest('../backend/public/fonts/'));
-});
+gulp.task('default', ['index', 'views', 'partials', 'css', 'browserify', 'watch']);
 
 gulp.task('index', () => {
     return gulp
-        .src('./public/index.html')
+        .src('./index.html')
         .pipe(gulp.dest('../backend/public/'));
 });
 
-gulp.task('sass', ['fonts'], () => {
-    return gulp.src('./sass/*.sass')
-        .pipe(sass({
-            includePaths: ['./node_modules/bootstrap-sass/assets/stylesheets'], 
-            errLogToConsole:true,
-            outputStyle: 'compressed'
-        }).on('error', sass.logError))
+gulp.task('views', () => {
+    return gulp
+        .src('./views/*.html')
+        .pipe(gulp.dest('../backend/public/views/'));
+});
+
+gulp.task('partials', () => {
+    return gulp
+        .src('./views/partials/*.html')
+        .pipe(gulp.dest('../backend/public/views/partials/'));
+});
+
+gulp.task('css', () => {
+    const cssStream = gulp.src(
+            ['./node_modules/angular-material/angular-material.css',
+            './node_modules/angular-material-data-table/dist/md-data-table.css']
+        ).pipe(concat('./css-files.css'));
+
+    return merge(cssStream)
+        .pipe(concat('style.css'))
         .pipe(gulp.dest('../backend/public/css/'));
 });
