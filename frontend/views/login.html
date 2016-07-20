@@ -1,0 +1,29 @@
+<div layout="column" layout-align="center center" style="min-height: 600px">
+    <md-content layout="column" class="md-whiteframe-z1">
+        <md-whiteframe class="md-whiteframe-z4" layout="column" flex="30" layout-padding>
+            <md-toolbar>
+                <h2 class="md-toolbar-tools"><span>Inventory - Login</span></h2>
+            </md-toolbar>
+            <md-content layout="column" class="md-padding" layout-padding style="padding-top:30px;">
+                <md-input-container>
+                    <label>Username/Email</label>
+                    <input ng-model="username" required>
+                </md-input-container>
+                <md-input-container>
+                    <label>Password</label>
+                    <input ng-model="password" type="password" required>
+                </md-input-container>
+                <md-input-container layout="column" layout-align="center center" style="padding-top:20px;">
+                    <md-content layout="row" layout-align="center center">
+                        <md-button ng-click="login.normal()" class="md-raised md-primary" flex="50" flex-sm="100">Login</md-button>
+                        <md-button ng-click="forgot($event)" class="md-raised" flex="100" flex-sm="100">Forgot Password?</md-button>
+                    </md-content>
+                    <md-content layout="row" layout-align="center center">
+                        <md-button ng-click="create($event)" class="md-raised md-primary" flex="50" flex-sm="100">Register</md-button>
+                        <md-button ng-click="login.google()" class="md-raised md-warn" flex="100" flex-sm="100">Sign In With Google</md-button>
+                    </md-content>
+                </md-input-container>
+            </md-content>
+        </md-whiteframe>
+    </md-content>
+</div>

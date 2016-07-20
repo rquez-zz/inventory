@@ -1,0 +1,126 @@
+<div layout ="column">
+    <div layout="row" flex>
+
+        <!-- LOGO/CATEGORIES SIDENAV -->
+        <md-sidenav class="md-sidenav-left md-whiteframe-z2" md-is-locked-open="$mdMedia('gt-xs')" md-component-id="categories">
+
+            <!-- TITLE LOGO -->
+            <md-toolbar class="md-whiteframe-z2">
+                <md-button layout="row" layout-align="center center" class="md-toolbar-tools md-warn">
+                    <h1>Inventory</h1>
+                </md-button>
+            </md-toolbar>
+
+            <md-content layout-padding>
+                <!-- CATEGORIES -->
+                <md-button ng-repeat-start="category in categories" layout="column" layout-fill layout-align="center center" flex ng-click="select(category)">
+                    <div hide-sm hide-md class="md-title-content">
+                        {{ category.name }}
+                    </div>
+                </md-button>
+                <md-divider ng-repeat-end></md-divider>
+                <md-button layout-fill layout-align="center center" ng-click="addCategory(event)">
+                    <md-icon md-font-icon="material-icons">add_box</md-icon>
+                </md-button>
+            </md-content>
+        </md-sidenav>
+
+        <!-- CENTER -->
+        <md-content layout="column" layout-fill flex>
+
+            <!-- THE HEADER -->
+            <md-toolbar layout="row" layout-align="end center">
+                <section layout-align="end center" layout="row">
+                    <h3>{{ username || "adfad"}}</h3>
+                    <md-button class="md-icon-button" ng-click="toggleProfile()" ng-hide="isOpenProfile()" aria-label="Profile">
+                        <md-icon md-font-icon="material-icons">account_circle</md-icon>
+                    </md-button>
+                </section>
+            </md-toolbar>
+
+            <md-content flex class="md-padding">
+                <!-- INVENTORY HEADER -->
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <h1>{{ selectedCategory.name }}</h1>
+                        <span flex></span>
+                        <md-button class="md-raised" aria-label="Add Item" ng-click="addItem(event)">
+                            Add Item
+                        </md-button>
+                        <md-button class="md-raised" aria-label="Share" ng-click="addShare(event)">
+                            Share
+                        </md-button>
+                    </div>
+                    <md-subheader ng-if="selectedCategory.sharedTo > 0" class="md-primary">Currently shared to {{ selectedCategory.sharedTo | join:', ' }}</md-subheader>
+                    <md-subheader ng-if="selectedCategory.sharedFrom" class="md-primary">Currently shared from {{ selectedCategory.sharedFrom }}'s inventory</md-subheader>
+                </md-toolbar>
+
+                <!-- INVENTORY ITEMS -->
+                <md-card>
+                    <md-table-container>
+                        <table md-table>
+                            <thead md-head md-order="order">
+                                <tr md-row>
+                                    <th md-column md-order-by="name"><span>Item</span></th>
+                                    <th md-column md-order-by="quantity"><span>Quantity</span></th>
+                                    <th md-column md-order-by="date-added"><span>Date Added</span></th>
+                                    <th md-column md-order-by="comments"><span>Comments</span></th>
+                                    <th md-column><span>Edit</span></th>
+                                </tr>
+                            </thead>
+                            <tbody md-body>
+                                <tr md-select="name" ng-repeat="item in items | orderBy: order">
+                                    <td md-cell>{{ item.name }}</td>
+                                    <td md-cell>{{ item.quantity }}</td>
+                                    <td md-cell>{{ item.dateAdded | date:'MMM dd' }}</td>
+                                    <td md-cell>{{ item.comments }}</td>
+                                    <td md-cell>
+                                        <md-button class="md-icon-button" ng-click="editItem(item,event)" aria-label="Edit Item">
+                                            <md-icon md-font-icon="material-icons">mode_edit</md-icon>
+                                        </md-button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </md-table-container>
+                </md-card>
+            </md-content>
+        </md-content>
+
+        <!-- PROFILE SIDENAV -->
+        <md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="profile">
+            <md-toolbar class="md-theme-indigo">
+                <h1 class="md-toolbar-tools">User Profile</h1>
+            </md-toolbar>
+            <md-content layout-padding>
+                <form>
+                    <section layout="column">
+                        <md-input-container>
+                            <label>Email</label>
+                            <input type="email" ng-model="email" md-autofocus>
+                        </md-input-container>
+                        <md-button ng-click="updateEmail()" aria-label="Change Email">Change Email</md-button>
+                    </section>
+                    <section layout="column">
+                        <md-input-container>
+                            <label>Password</label>
+                            <input type="password" ng-model="password" md-autofocus>
+                        </md-input-container>
+                        <md-button ng-click="updatePassword()" aria-label="Change Password">Change Password</md-button>
+                    </section>
+                    <section layout="column">
+                        <md-input-container>
+                            <md-switch ng-model="notificationsOn" aria-label="Notification Switch">
+                                Notifications {{ notificationsOn }}
+                            </md-switch>
+                        </md-input-container>
+                    </section>
+                    <section layout="column">
+                        <md-button class="md-warn md-raised md-hue-2" ng-click="deleteUser()" aria-label="Close Account">Close Account</md-button>
+                    </section>
+                </form>
+                <md-button ng-click="closeProfile()" class="md-primary" aria-label="Close Profile Panel">Close Profile Panel</md-button>
+            </md-content>
+        </md-sidenav>
+    </div>
+</div>

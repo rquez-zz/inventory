@@ -1,0 +1,45 @@
+<md-dialog ng-cloak>
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>Edit Item</h2>
+            </div>
+        </md-toolbar>
+        <md-dialog-content>
+            <div class="md-dialog-content">
+                <md-input-container class="md-block">
+                    <label>Item Name</label>
+                    <input type="text" ng-model="item.name" required>
+                </md-input-container>
+                <md-input-container class="md-block">
+                    <label>Quantity</label>
+                    <input type="number" ng-model="item.quantity" required>
+                </md-input-container>
+                <md-input-container class="md-block">
+                    <label>Comments</label>
+                    <input type="text" ng-model="item.comments">
+                </md-input-container>
+                <md-input-container class="md-block">
+                    <label>Category</label>
+                    <md-select ng-model="selectedCategory">
+                        <md-optgroup label="Categories">
+                            <md-option ng-repeat="category in categories" ng-value="category">{{category.name}}</md-option>
+                        </md-optgroup>
+                    </md-select>
+                </md-input-container>
+                <label>Reminder</label>
+                <div layout="row">
+                    <md-input-container class="md-block">
+                        <label>Message</label>
+                        <input type="text" ng-model="item.reminder.message">
+                    </md-input-container>
+                    <md-datepicker ng-model="item.reminder.date"></md-datepicker>
+                </div>
+            </div>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <md-button ng-click="edit(item, event)">Ok</md-button>
+            <md-button ng-click="cancel()">Cancel</md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>
