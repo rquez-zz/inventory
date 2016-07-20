@@ -17,30 +17,28 @@ module.exports = {
     }),
 
     createCategory: Joi.object({
-        name: Joi.string().alphanum().required(),
-        color: Joi.string().alphanum().required()
+        name: Joi.string().alphanum().required()
     }),
 
     updateCategory: Joi.object({
-        name: Joi.string().required(),
-        color: Joi.string().required(),
+        name: Joi.string().required()
     }),
 
     createItem: Joi.object({
         name: Joi.string().required(),
-        quantity: Joi.number().min(1).max(10000),
+        quantity: Joi.number().min(1).max(10000).required(),
         categoryId: Joi.string().required(),
-        importantDate: Joi.object({
+        categoryName: Joi.string().required(),
+        comments: Joi.string(),
+        reminder: Joi.object({
             message: Joi.string(),
-            date: Joi.date().iso(),
-            reminder: Joi.date().iso()
+            date: Joi.date(),
         })
     }),
 
     createShare: Joi.object({
-        shareToUser: Joi.string().required(),
-        categoryColor: Joi.string().alphanum().required(),
-        categoryName: Joi.string().alphanum().required(),
+        friendUsername: Joi.string().required(),
+        categoryName: Joi.string().alphanum().required()
     }),
 
     createUser: Joi.object({
@@ -56,9 +54,5 @@ module.exports = {
     updateUser: Joi.object({
         email: Joi.string().email().required(),
         notificationsOn: Joi.boolean().required()
-    }),
-
-    updatePassword: Joi.object({
-        password: Joi.string().alphanum().min(3).max(30).required(),
     })
 };
