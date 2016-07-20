@@ -11,7 +11,8 @@ const share = {
     createShare: (req, reply) => {
 
         const myId = new ObjectId(req.auth.credentials.id);
-        const friendId = new ObjectId(req.payload.shareToUser);
+        const friendUsername = req.payload.friendUsername;
+        const myUsername = req.auth.credentials.username;
 
         // Find my user
         User.findOne({'_id': myId }).then(user => {
@@ -26,12 +27,12 @@ const share = {
                 return Promise.reject(Boom.conflict('Already sharing to user.'));
 
             // Save friend user in my user
-            user.categories.id(req.params.cid).sharedTo.push(friendId);
+            user.categories.id(req.params.cid).sharedTo.push(friendUsername);
             return user.save();
         }).then(() => {
 
             // Find target user
-            return User.findOne({'_id': friendId })
+            return User.findOne({'username': friendUsername });
         }).then(user => {
 
             if (!user)
@@ -39,8 +40,7 @@ const share = {
 
             const newCategory = new Category({
                 name: req.payload.categoryName,
-                color: req.payload.categoryColor,
-                sharedFrom: [myId],
+                sharedFrom: myUsername,
                 _id: new ObjectId(req.params.cid)
             });
 
@@ -58,14 +58,14 @@ const share = {
 
         // Find user that shared to me
         User.findOne({
-            '_id': new ObjectId(req.params.tid),
+            'username': req.params.friendUsername,
             'categories._id': new ObjectId(req.params.cid)
         }).then(user => {
 
             if (!user)
-                return reply(Boom.notFound('User or category not found.'));
+                return Promise.reject(Boom.notFound('User or category not found.'));
 
-            if (user.categories.id(req.params.cid).sharedTo.includes(req.auth.credentials.id))
+            if (user.categories.id(req.params.cid).sharedTo.includes(req.auth.credentials.username))
                 return User.aggregate(
                 {
                     $match: { 'inventory.categoryId': req.params.cid }
@@ -77,12 +77,14 @@ const share = {
                     $project: {
                         name:'$inventory.name',
                         quantity: '$inventory.quantity',
+                        categoryName: '$inventory.categoryName',
                         categoryId: '$inventory.categoryId',
-                        categoryName: '$inventory.categoryName'
+                        comments: '$inventory.comments',
+                        dateAdded: '$inventory.dateAdded'
                     }
                 });
             else
-                return reply(Boom.unauthorized('Unauthorized access to user inventory.'));
+                return Promise.reject(Boom.unauthorized('Unauthorized access to user inventory.'));
 
         }).then(result => {
             return reply(result);
@@ -93,7 +95,8 @@ const share = {
     deleteShare: (req, reply) => {
 
         const myId = new ObjectId(req.auth.credentials.id);
-        const friendId = new ObjectId(req.params.tid);
+        const myUsername = req.auth.credentials.username;
+        const friendId = req.params.friendUsername;
 
         // Find my user
         User.findOne({
@@ -108,7 +111,7 @@ const share = {
                 return Promise.reject(Boom.notFound('Category not found.'));
 
             // Remove friend user in my user
-            user.categories.id(req.params.cid).sharedTo.pull(friendId);
+            user.categories.id(req.params.cid).sharedTo.pull(friendUsername);
             return user.save();
         }).then(() => {
 
@@ -123,7 +126,7 @@ const share = {
                 return Promise.reject(Boom.notFound('User not found.'));
 
             // Remove my id in friend user
-            user.categories.id(req.params.cid).sharedFrom.pull(myId);
+            delete user.categories.id(req.params.cid).sharedFrom;
             return user.save();
         }).then(() => {
             return reply().code(204);

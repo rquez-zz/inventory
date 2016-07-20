@@ -44,7 +44,7 @@ const auth = {
 
                         // If user doesn't exist, return their email
                         const token = { email: email };
-                        return reply({ jwt: jwt.sign(token)});
+                        return reply({ email: jwt.sign(token)});
                     }
                 }).catch(error => {
                     return reply(error);
@@ -80,8 +80,13 @@ const auth = {
 
         }).then(user => {
 
-            user.password = undefined; // exclude the hashed password
-            return reply(user).header('location', '/user/' + user.username);
+            const token = {
+                email: user.email,
+                username: user.username,
+                id: user._id
+            };
+
+            return reply({ jwt: jwtHelper.sign(token) });
         }).catch(error => {
             return reply(error);
         });

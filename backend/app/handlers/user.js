@@ -33,8 +33,12 @@ const user = {
 
         }).then(user => {
 
-            user.password = undefined; // exclude the hashed password
-            return reply(user).header('location', '/user/' + user.username);
+            const token = {
+                email: user.email,
+                username: user.username,
+                id: user._id
+            };
+            return reply({ jwt: jwtHelper.sign(token) });
         }).catch(err => {
             return reply(err);
         });
