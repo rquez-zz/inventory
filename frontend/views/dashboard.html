@@ -13,7 +13,7 @@
 
             <md-content layout-padding>
                 <!-- CATEGORIES -->
-                <md-button ng-repeat-start="category in categories" layout="column" layout-fill layout-align="center center" flex ng-click="select(category)">
+                <md-button ng-repeat-start="category in categories" layout="column" layout-fill layout-align="center center" flex ng-click="selectItem(category)">
                     <div hide-sm hide-md class="md-title-content">
                         {{ category.name }}
                     </div>
@@ -47,14 +47,11 @@
                     <div class="md-toolbar-tools">
                         <h1>{{ selectedCategory.name }}</h1>
                         <span flex></span>
-                        <md-button class="md-raised" aria-label="Add Item" ng-click="addItem(event)">
-                            Add Item
-                        </md-button>
-                        <md-button class="md-raised" aria-label="Share" ng-click="addShare(event)">
-                            Share
-                        </md-button>
+                        <md-button class="md-raised" aria-label="Add Item" ng-click="addItem(event)">Add Item</md-button>
+                        <md-button class="md-raised" aria-label="Share" ng-click="shareCategory(event)">Share</md-button>
+                        <md-button ng-if="selectedCategory.sharedTo.length > 0" class="md-raised" aria-label="Unshare" ng-click="deleteShare(event)">Unshare</md-button>
                     </div>
-                    <md-subheader ng-if="selectedCategory.sharedTo > 0" class="md-primary">Currently shared to {{ selectedCategory.sharedTo | join:', ' }}</md-subheader>
+                    <md-subheader ng-if="selectedCategory.sharedTo.length > 0" class="md-primary">Currently shared to {{ selectedCategory.sharedTo | join:', ' }}</md-subheader>
                     <md-subheader ng-if="selectedCategory.sharedFrom" class="md-primary">Currently shared from {{ selectedCategory.sharedFrom }}'s inventory</md-subheader>
                 </md-toolbar>
 

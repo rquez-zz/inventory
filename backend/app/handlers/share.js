@@ -6,6 +6,7 @@ const Boom = require('boom');
 const User = require('../models/user');
 const ObjectId = require('mongoose').Types.ObjectId;
 const Category = require('../models/category');
+const _ = require('lodash');
 
 const share = {
     createShare: (req, reply) => {
@@ -58,8 +59,7 @@ const share = {
 
         // Find user that shared to me
         User.findOne({
-            'username': req.params.friendUsername,
-            'categories._id': new ObjectId(req.params.cid)
+            'username': req.params.friendUsername
         }).then(user => {
 
             if (!user)
@@ -96,12 +96,11 @@ const share = {
 
         const myId = new ObjectId(req.auth.credentials.id);
         const myUsername = req.auth.credentials.username;
-        const friendId = req.params.friendUsername;
+        const friendUsername = req.params.friendUsername;
 
         // Find my user
         User.findOne({
-            '_id': myId,
-            'categories._id': new ObjectId(req.params.cid)
+            '_id': myId
         }).then(user => {
 
             if (!user)
@@ -111,14 +110,16 @@ const share = {
                 return Promise.reject(Boom.notFound('Category not found.'));
 
             // Remove friend user in my user
-            user.categories.id(req.params.cid).sharedTo.pull(friendUsername);
+            user.categories.id(req.params.cid).sharedTo = _.filter((user)=>{
+                return user !== friendUsername;
+            });
+
             return user.save();
         }).then(() => {
 
             // Find friend user
             return User.findOne({
-                '_id': friendId,
-                'categories._id': new ObjectId(req.params.cid)
+                'username': friendUsername
             });
         }).then(user => {
 
@@ -126,7 +127,8 @@ const share = {
                 return Promise.reject(Boom.notFound('User not found.'));
 
             // Remove my id in friend user
-            delete user.categories.id(req.params.cid).sharedFrom;
+            user.categories.id(req.params.cid).remove();
+
             return user.save();
         }).then(() => {
             return reply().code(204);

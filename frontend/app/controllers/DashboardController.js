@@ -159,6 +159,41 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
         });
     };
 
+    const getSharedItems = (category) => {
+        const req = {
+            method: 'GET',
+            url: '/category/' + category._id + '/share/' + category.sharedFrom,
+            skipAuthorization: true,
+            headers: {
+                'Authorization': 'Bearer ' + $window.sessionStorage.token
+            }
+        };
+
+        return $http(req).then(response => {
+            return response.data;
+        }, error => {
+            $scope.status = error.data.message;
+        });
+    };
+
+    const deleteShare = (category, friendId) => {
+
+        const req = {
+            method: 'DELETE',
+            url: '/category/' + category._id + '/share/' + friendId,
+            skipAuthorization: true,
+            headers: {
+                'Authorization': 'Bearer ' + $window.sessionStorage.token
+            }
+        };
+
+        return $http(req).then(response => {
+            return response.data;
+        }, error => {
+            $scope.status = error.data.message;
+        });
+    };
+
     var currentUser;
 
     // Fill Dashboard
@@ -260,11 +295,18 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
     };
 
     // Get Items
-    $scope.select = (category) => {
-        getItems(category).then(items => {
-            $scope.items = items;
-            $scope.selectedCategory = category;
-        });
+    $scope.selectItem = (category) => {
+        if (category.sharedFrom) {
+            getSharedItems(category).then(items => {
+                $scope.items = items;
+                $scope.selectedCategory = category;
+            });
+        } else {
+            getItems(category).then(items => {
+                $scope.items = items;
+                $scope.selectedCategory = category;
+            });
+        }
     };
 
     // Add Item
@@ -324,6 +366,55 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
         }).then(category => {
             $scope.categories.push(category);
         }, error => {
+        });
+    };
+
+    // Share Category
+    $scope.shareCategory = (event) => {
+        $mdDialog.show({
+            templateUrl: '/views/partials/create-share.html',
+            clickOutsideToClose: true,
+            targetEv: event,
+            locals: { category: $scope.selectedCategory },
+            controller: CreateShareController
+        }).then(category => {
+
+            getCategories().then(() => {
+                $mdDialog.show(
+                    $mdDialog.alert()
+                        .clickOutsideToClose(true)
+                        .title('Share Successful')
+                        .textContent('Category was successfully shared to user.')
+                        .ariaLabel('Share Success')
+                        .ok('Ok'));
+            });
+        }, error => {
+        });
+    };
+
+    // Delete Share
+    $scope.deleteShare = (event) => {
+        $mdDialog.show($mdDialog.confirm()
+            .title('Are you sure you want to unshare this category?')
+            .textContent('All shared users will lose access.')
+            .ariaLabel('Unshare Category')
+            .targetEvent(event)
+            .ok('Ok')
+            .cancel('Cancel')).then(() => {
+
+            var category = $scope.selectedCategory;
+            var users = $scope.selectedCategory.sharedTo;
+
+            _.after(users.length,() => {
+                getCategories().then(() => {
+
+                });
+            });
+
+            _.forEach(users, (value) => {
+                deleteShare(category, value).then(() => {
+                });
+            });
         });
     };
 
@@ -417,6 +508,34 @@ function EditItemController ($scope, $window, $http, $mdDialog, item, categories
                     date: $scope.item.reminder.date,
                     message: $scope.item.reminder.message
                 }
+            },
+            skipAuthorization: true,
+            headers: {
+                'Authorization': 'Bearer ' + $window.sessionStorage.token
+            }
+        };
+
+        $http(req).then(response => {
+            $mdDialog.hide(response.data);
+        }, error => {
+            $mdDialog.cancel(error);
+        });
+    };
+
+    $scope.cancel = () => {
+        $mdDialog.cancel();
+    };
+}
+
+function CreateShareController ($scope, $window, $http, $mdDialog, category) {
+
+    $scope.create = () => {
+        const req = {
+            method: 'POST',
+            url: '/category/' + category._id + '/share',
+            data: {
+                friendUsername: $scope.targetUsername,
+                categoryName: category.name
             },
             skipAuthorization: true,
             headers: {
