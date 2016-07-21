@@ -28,11 +28,17 @@ app.filter('join', () => {
     };
 });
 
+app.filter('onOff', () => {
+    return (input) => {
+        return input ? 'on' : 'off';
+    };
+});
+
 app.controller('LoginController',
         ['$scope', '$window', '$auth', '$http', '$state', '$mdDialog', require('./controllers/LoginController')]);
 
 app.controller('DashboardController',
-        ['$scope', '$http', '$window', '$timeout', '$mdSidenav', '$mdDialog', require('./controllers/DashboardController')]);
+        ['$scope', '$http', '$window', '$timeout', '$mdSidenav', '$mdDialog', '$state', require('./controllers/DashboardController')]);
 
 app.config(($authProvider, $stateProvider, $urlRouterProvider) => {
     $stateProvider

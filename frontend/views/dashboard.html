@@ -6,8 +6,8 @@
 
             <!-- TITLE LOGO -->
             <md-toolbar class="md-whiteframe-z2">
-                <md-button layout="row" layout-align="center center" class="md-toolbar-tools md-warn">
-                    <h1>Inventory</h1>
+                <md-button layout="row" layout-align="center center" class="md-toolbar-tools">
+                    <h1>Categories</h1>
                 </md-button>
             </md-toolbar>
 
@@ -29,12 +29,15 @@
         <md-content layout="column" layout-fill flex>
 
             <!-- THE HEADER -->
-            <md-toolbar layout="row" layout-align="end center">
+            <md-toolbar layout="row" class="md-whiteframe-z2" layout-align="end center">
+                <section layout-align="start center" class="md-toolbar-tools">
+                    <h4>Inventory</h4>
+                </section>
                 <section layout-align="end center" layout="row">
-                    <h3>{{ username || "adfad"}}</h3>
-                    <md-button class="md-icon-button" ng-click="toggleProfile()" ng-hide="isOpenProfile()" aria-label="Profile">
-                        <md-icon md-font-icon="material-icons">account_circle</md-icon>
-                    </md-button>
+                    <md-button class="md-raised" ng-click="toggleProfile()" ng-hide="isOpenProfile()" aria-label="Profile">Profile</md-button>
+                </section>
+                <section layout-align="end center" layout="row">
+                    <md-button ng-click="logout()" class="md-raised warn" aria-label="Profile">Logout</md-button>
                 </section>
             </md-toolbar>
 
@@ -66,6 +69,7 @@
                                     <th md-column md-order-by="date-added"><span>Date Added</span></th>
                                     <th md-column md-order-by="comments"><span>Comments</span></th>
                                     <th md-column><span>Edit</span></th>
+                                    <th md-column><span>Delete</span></th>
                                 </tr>
                             </thead>
                             <tbody md-body>
@@ -79,6 +83,11 @@
                                             <md-icon md-font-icon="material-icons">mode_edit</md-icon>
                                         </md-button>
                                     </td>
+                                    <td md-cell>
+                                        <md-button class="md-icon-button" ng-click="deleteItem(item,event)" aria-label="Delete Item">
+                                            <md-icon md-font-icon="material-icons">delete</md-icon>
+                                        </md-button>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -90,34 +99,28 @@
         <!-- PROFILE SIDENAV -->
         <md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="profile">
             <md-toolbar class="md-theme-indigo">
-                <h1 class="md-toolbar-tools">User Profile</h1>
+                <h1 class="md-toolbar-tools">Welcome, {{ profileUsername }}</h1>
             </md-toolbar>
             <md-content layout-padding>
                 <form>
-                    <section layout="column">
+                    <div layout="column">
                         <md-input-container>
                             <label>Email</label>
-                            <input type="email" ng-model="email" md-autofocus>
+                            <input type="email" ng-model="profileEmail" md-autofocus>
+                            <md-button ng-click="updateEmail($event)" aria-label="Change Email">Change Email</md-button>
                         </md-input-container>
-                        <md-button ng-click="updateEmail()" aria-label="Change Email">Change Email</md-button>
-                    </section>
-                    <section layout="column">
+                    </div>
+                    <div layout="column">
                         <md-input-container>
-                            <label>Password</label>
-                            <input type="password" ng-model="password" md-autofocus>
-                        </md-input-container>
-                        <md-button ng-click="updatePassword()" aria-label="Change Password">Change Password</md-button>
-                    </section>
-                    <section layout="column">
-                        <md-input-container>
-                            <md-switch ng-model="notificationsOn" aria-label="Notification Switch">
-                                Notifications {{ notificationsOn }}
+                            <md-switch ng-change="updateNotifications()" ng-model="notificationsOn" aria-label="Notification Switch">
+                                Notifications {{ notificationsOn | onOff }}
                             </md-switch>
                         </md-input-container>
-                    </section>
-                    <section layout="column">
-                        <md-button class="md-warn md-raised md-hue-2" ng-click="deleteUser()" aria-label="Close Account">Close Account</md-button>
-                    </section>
+                    </div>
+                    <div layout="column">
+                        <md-button ng-click="updatePassword($event)" class="md-warn md-raised md-hue-2" aria-label="Change Email">Change Password</md-button>
+                        <md-button class="md-warn md-raised md-hue-2" ng-click="deleteAccount()" aria-label="Close Account">Delete Account</md-button>
+                    </div>
                 </form>
                 <md-button ng-click="closeProfile()" class="md-primary" aria-label="Close Profile Panel">Close Profile Panel</md-button>
             </md-content>

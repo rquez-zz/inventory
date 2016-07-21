@@ -14,13 +14,15 @@ module.exports = function($scope, $window, $auth, $http, $state, $mdDialog) {
             };
 
             $http(req).then(response => {
+
                 // Store JWT
-                $window.sessionStorage.token = response.jwt;
+                $window.sessionStorage.token = response.data.jwt;
 
                 // Go to Dashboard
                 $state.go('dashboard');
             }, (error) => {
-                $scope.status = error.data.message;
+
+                $scope.status = "Invalid username/password entered.";
             });
         },
 
@@ -32,29 +34,31 @@ module.exports = function($scope, $window, $auth, $http, $state, $mdDialog) {
                     // Store JWT
                     $window.sessionStorage.token = response.data.jwt;
 
-                } else {
+                    // Go to Dashboard
+                    $state.go('dashboard');
 
-                    // Store JWT that has email
-                    $window.sessionStorage.email = response.data.email;
+                } else {
 
                     // User hasn't been created, choose username
                     $mdDialog.show({
                         templateUrl: '/views/partials/create-user-google.html',
                         clickOutsideToClose: true,
                         targetEv: event,
+                        locals: { jwt: response.data.email },
                         controller: CreateGoogleUserController
                     })
-                    .then((status) => {
+                    .then((jwt) => {
+
                         // Store JWT
-                        $window.sessionStorage.token = status;
+                        $window.sessionStorage.token = jwt;
+
+                        // Go to Dashboard
+                        $state.go('dashboard');
                     });
                 }
 
-                // Go to Dashboard
-                $state.go('dashboard');
-
             }, (error) => {
-                $scope.status = error.data.message;
+                $scope.status = "Error authenticating with google.";
             });
         }
     };
@@ -73,6 +77,10 @@ module.exports = function($scope, $window, $auth, $http, $state, $mdDialog) {
 
             // Go to Dashboard
             $state.go('dashboard');
+
+        }, error => {
+
+            $scope.status = "Error registering a user.";
         });
     };
 
@@ -90,7 +98,7 @@ module.exports = function($scope, $window, $auth, $http, $state, $mdDialog) {
     };
 };
 
-function CreateGoogleUserController($scope, $window, $http, $mdDialog) {
+function CreateGoogleUserController($scope, $window, $http, $mdDialog, jwt) {
 
     // Create User With Username/Password
     $scope.create = () => {
@@ -103,7 +111,7 @@ function CreateGoogleUserController($scope, $window, $http, $mdDialog) {
             },
             skipAuthorization: true,
             headers: {
-                'Authorization': 'Bearer ' + $window.sessionStorage.email
+                'Authorization': 'Bearer ' + jwt
             }
         };
 
