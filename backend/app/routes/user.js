@@ -26,6 +26,16 @@ const user = [
     },
     {
         method: 'POST',
+        path: '/user/password-confirm',
+        handler: authHandler.updatePassword,
+        config: {
+            validate: {
+                payload: validator.updatePassword
+            }
+        }
+    },
+    {
+        method: 'POST',
         path: '/user/password',
         handler: userHandler.updatePassword,
         config: {

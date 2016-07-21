@@ -73,7 +73,8 @@ const auth = {
                 const newUser = new User({
                     email: req.auth.credentials.email,
                     username: req.payload.username,
-                    categories: [new Category({name: 'main', color: 'blue'})]
+                    categories: [new Category({name: 'main', color: 'blue'})],
+                    googleOnly: true
                 });
                 return newUser.save();
             }

@@ -26,7 +26,8 @@ const user = {
                     email: req.payload.email,
                     username: req.payload.username,
                     password: User.hashPassword(req.payload.password),
-                    categories: [new Category({name: 'main', color: 'blue'})]
+                    categories: [new Category({name: 'Main'})],
+                    googleOnly: false
                 });
                 return newUser.save();
             }
@@ -70,9 +71,10 @@ const user = {
                 if (!user)
                     return Promise.reject(Boom.notFound('User not found.'));
 
-                if (req.auth.credentials.passwordUpdate)
+                if (req.auth.credentials.passwordUpdate) {
                     user.password = User.hashPassword(req.payload.password);
-                else
+                    user.googleOnly = false;
+                } else
                     return Promise.reject(Boom.unauthorized('Password changed not confirmed.'));
 
                 return user.save();

@@ -28,7 +28,8 @@ const UserSchema = mongoose.Schema({
     username: { type: String, required: true },
     inventory: [ItemSchema],
     categories: [CategorySchema],
-    notificationsOn: { type: Boolean, default: true }
+    notificationsOn: { type: Boolean, default: true },
+    googleOnly: { type: Boolean }
 });
 
 UserSchema.statics.hashPassword = function(password) {
