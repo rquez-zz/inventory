@@ -10,12 +10,7 @@ const config = {
     bcrypt: env.WORK_FACTOR || 10,
     key: env.PRIVATE_KEY || 'privateKey',
     google: {
-        key: env.GOOGLE_KEY || 'googleApiKey.json',
-        opts: {
-            REDIRECT_URL: '/auth',
-            handler: require('./app/handlers/auth').authCallback,
-            scope: 'https://www.googleapis.com/auth/plus.profile.emails.read'
-        }
+        key: env.GOOGLE_KEY || 'googleApiKey.json'
     },
     email: {
         from: 'inventory.emailer@gmail.com'

@@ -3,15 +3,13 @@ const bcrypt = require('bcryptjs');
 
 const CategorySchema = mongoose.Schema({
     name: { type: String, required: true  },
-    color: { type: String, required: true },
-    sharedFrom: [{ type: String }],
+    sharedFrom: { type: String },
     sharedTo: [{ type: String }]
 });
 
 const ReminderSchema = mongoose.Schema({
-    message: { type: String, required: true },
-    date: { type: Date, required: true },
-    reminder: { type: Date, required: true }
+    message: { type: String },
+    date: { type: Date },
 });
 
 const ItemSchema = mongoose.Schema({
@@ -19,8 +17,9 @@ const ItemSchema = mongoose.Schema({
     quantity: { type: Number, required: true, default: 1 },
     categoryId: { type: String, default: 'main' },
     categoryName: { type: String, default: 'main' },
-    notes: { type: String },
-    importantDate: ReminderSchema
+    dateAdded: { type:Date, required: true },
+    comments: { type: String },
+    reminder: ReminderSchema
 });
 
 const UserSchema = mongoose.Schema({
@@ -29,7 +28,8 @@ const UserSchema = mongoose.Schema({
     username: { type: String, required: true },
     inventory: [ItemSchema],
     categories: [CategorySchema],
-    notificationsOn: { type: Boolean, default: true }
+    notificationsOn: { type: Boolean, default: true },
+    googleOnly: { type: Boolean }
 });
 
 UserSchema.statics.hashPassword = function(password) {

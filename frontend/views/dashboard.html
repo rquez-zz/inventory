@@ -1,0 +1,126 @@
+<div layout ="column">
+    <div layout="row" flex>
+
+        <!-- LOGO/CATEGORIES SIDENAV -->
+        <md-sidenav class="md-sidenav-left md-whiteframe-z2" md-is-locked-open="$mdMedia('gt-xs')" md-component-id="categories">
+
+            <!-- TITLE LOGO -->
+            <md-toolbar class="md-whiteframe-z2">
+                <md-button layout="row" layout-align="center center" class="md-toolbar-tools">
+                    <h1>Categories</h1>
+                </md-button>
+            </md-toolbar>
+
+            <md-content layout-padding>
+                <!-- CATEGORIES -->
+                <md-button ng-repeat-start="category in categories" layout="column" layout-fill layout-align="center center" flex ng-click="selectCategory(category)">
+                    <div hide-sm hide-md class="md-title-content">
+                        {{ category.name }}
+                    </div>
+                </md-button>
+                <md-divider ng-repeat-end></md-divider>
+                <md-button layout-fill layout-align="center center" ng-click="addCategory(event)">
+                    <md-icon md-font-icon="material-icons">add_box</md-icon>
+                </md-button>
+            </md-content>
+        </md-sidenav>
+
+        <!-- CENTER -->
+        <md-content layout="column" layout-fill flex>
+
+            <!-- THE HEADER -->
+            <md-toolbar layout="row" class="md-whiteframe-z2" layout-align="end center">
+                <section layout-align="start center" class="md-toolbar-tools">
+                    <h4>Inventory</h4>
+                </section>
+                <section layout-align="end center" layout="row">
+                    <md-button class="md-raised" ng-click="toggleProfile()" ng-hide="isOpenProfile()" aria-label="Profile">Profile</md-button>
+                </section>
+                <section layout-align="end center" layout="row">
+                    <md-button ng-click="logout()" class="md-raised warn" aria-label="Profile">Logout</md-button>
+                </section>
+            </md-toolbar>
+
+            <md-content flex class="md-padding">
+                <!-- INVENTORY HEADER -->
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <h1>{{ selectedCategory.name }}</h1>
+                        <span flex></span>
+                        <md-button class="md-raised" aria-label="Add Item" ng-click="addItem(event)">Add Item</md-button>
+                        <md-button class="md-raised" aria-label="Share" ng-click="shareCategory(event)">Share</md-button>
+                        <md-button ng-if="isSharedTo" class="md-raised" aria-label="Unshare" ng-click="deleteShare(event)">Unshare</md-button>
+                    </div>
+                    <md-subheader ng-if="isSharedTo" class="md-primary">Currently shared to {{ selectedCategory.sharedTo | join:', ' }}</md-subheader>
+                    <md-subheader ng-if="isSharedFrom" class="md-primary">Currently shared from {{ selectedCategory.sharedFrom }}'s inventory</md-subheader>
+                </md-toolbar>
+
+                <!-- INVENTORY ITEMS -->
+                <md-card>
+                    <md-table-container>
+                        <table md-table>
+                            <thead md-head md-order="order">
+                                <tr md-row>
+                                    <th md-column md-order-by="name"><span>Item</span></th>
+                                    <th md-column md-order-by="quantity"><span>Quantity</span></th>
+                                    <th md-column md-order-by="date-added"><span>Date Added</span></th>
+                                    <th md-column md-order-by="comments"><span>Comments</span></th>
+                                    <th md-column><span>Edit</span></th>
+                                    <th md-column><span>Delete</span></th>
+                                </tr>
+                            </thead>
+                            <tbody md-body>
+                                <tr md-select="name" ng-repeat="item in items | orderBy: order">
+                                    <td md-cell>{{ item.name }}</td>
+                                    <td md-cell>{{ item.quantity }}</td>
+                                    <td md-cell>{{ item.dateAdded | date:'MMM dd' }}</td>
+                                    <td md-cell>{{ item.comments }}</td>
+                                    <td md-cell>
+                                        <md-button class="md-icon-button" ng-click="editItem(item,event)" aria-label="Edit Item">
+                                            <md-icon md-font-icon="material-icons">mode_edit</md-icon>
+                                        </md-button>
+                                    </td>
+                                    <td md-cell>
+                                        <md-button class="md-icon-button" ng-click="deleteItem(item,event)" aria-label="Delete Item">
+                                            <md-icon md-font-icon="material-icons">delete</md-icon>
+                                        </md-button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </md-table-container>
+                </md-card>
+            </md-content>
+        </md-content>
+
+        <!-- PROFILE SIDENAV -->
+        <md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="profile">
+            <md-toolbar class="md-theme-indigo">
+                <h1 class="md-toolbar-tools">Welcome, {{ profileUsername }}</h1>
+            </md-toolbar>
+            <md-content layout-padding>
+                <form>
+                    <div layout="column">
+                        <md-input-container>
+                            <label>Email</label>
+                            <input type="email" ng-model="profileEmail" md-autofocus>
+                            <md-button ng-click="updateEmail($event)" aria-label="Change Email">Change Email</md-button>
+                        </md-input-container>
+                    </div>
+                    <div layout="column">
+                        <md-input-container>
+                            <md-switch ng-change="updateNotifications()" ng-model="notificationsOn" aria-label="Notification Switch">
+                                Notifications {{ notificationsOn | onOff }}
+                            </md-switch>
+                        </md-input-container>
+                    </div>
+                    <div layout="column">
+                        <md-button ng-click="updatePassword($event)" class="md-warn md-raised md-hue-2" aria-label="Change Email">Change Password</md-button>
+                        <md-button class="md-warn md-raised md-hue-2" ng-click="deleteAccount()" aria-label="Close Account">Delete Account</md-button>
+                    </div>
+                </form>
+                <md-button ng-click="closeProfile()" class="md-primary" aria-label="Close Profile Panel">Close Profile Panel</md-button>
+            </md-content>
+        </md-sidenav>
+    </div>
+</div>

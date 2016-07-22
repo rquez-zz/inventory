@@ -1,0 +1,37 @@
+<md-dialog ng-cloak>
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>Create Item</h2>
+            </div>
+        </md-toolbar>
+        <md-dialog-content>
+            <div class="md-dialog-content">
+                <md-input-container class="md-block">
+                    <label>Item Name</label>
+                    <input type="text" ng-model="name" required>
+                </md-input-container>
+                <md-input-container class="md-block">
+                    <label>Quantity</label>
+                    <input type="number" ng-model="quantity" required>
+                </md-input-container>
+                <md-input-container class="md-block">
+                    <label>Comments</label>
+                    <input type="text" ng-model="comments">
+                </md-input-container>
+                <label>Reminder</label>
+                <div layout="row">
+                    <md-input-container class="md-block">
+                        <label>Message</label>
+                        <input type="text" ng-model="message">
+                    </md-input-container>
+                    <md-datepicker ng-model="reminder" md-placeholder="Enter date"></md-datepicker>
+                </div>
+            </div>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <md-button ng-click="create()">Create</md-button>
+            <md-button ng-click="cancel()">Cancel</md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>
