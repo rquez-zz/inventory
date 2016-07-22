@@ -2,6 +2,35 @@ const _ = require('lodash');
 
 module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialog, $state) {
 
+    const buildDelayedToggler = (navID) => {
+        return debounce(() => {
+            $mdSidenav(navID)
+                .toggle()
+                .then(() => {});
+        }, 200);
+    };
+
+    const debounce = (func, wait, context) => {
+        var timer;
+        return () => {
+            var context = $scope,
+            args = Array.prototype.slice.call(arguments);
+            $timeout.cancel(timer);
+            timer = $timeout(() => {
+                timer = undefined;
+                func.apply(context, args);
+            }, wait || 10);
+        };
+    };
+
+    const buildToggler = (navID) => {
+        return () => {
+            $mdSidenav(navID)
+                .toggle()
+                .then(() => { });
+        };
+    };
+
     const getCategories = () => {
         const req = {
             method: 'GET',
@@ -71,129 +100,6 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
         });
     };
 
-    const updatePasswordAuth = (password) => {
-        const req = {
-            method: 'POST',
-            url: '/user/password-confirm',
-            skipAuthorization: true,
-            headers: {
-                'Authorization': 'Bearer ' + $window.sessionStorage.token
-            },
-            data: { password: password }
-        };
-
-        return $http(req).then(response => {
-            return response.data;
-        }, error => {
-            $scope.status = error.data.message;
-        });
-    };
-
-    const updatePassword = (jwt, password) => {
-        const req = {
-            method: 'POST',
-            url: '/user/password',
-            skipAuthorization: true,
-            headers: {
-                'Authorization': 'Bearer ' + jwt
-            },
-            data: { password: password }
-        };
-
-        return $http(req).then(response => {
-            return response.data;
-        }, error => {
-            $scope.status = error.data.message;
-        });
-    };
-
-    const updateNotifications = (updateUser) => {
-        const req = {
-            method: 'PUT',
-            url: '/user',
-            skipAuthorization: true,
-            headers: {
-                'Authorization': 'Bearer ' + $window.sessionStorage.token
-            },
-            data: updateUser
-        };
-
-        return $http(req).then(response => {
-            return response.data;
-        }, error => {
-            $scope.status = error.data.message;
-        });
-    };
-
-    const deleteUser = () => {
-        const req = {
-            method: 'DELETE',
-            url: '/user',
-            skipAuthorization: true,
-            headers: {
-                'Authorization': 'Bearer ' + $window.sessionStorage.token
-            }
-        };
-
-        return $http(req).then(response => {
-            return response.data;
-        }, error => {
-            $scope.status = error.data.message;
-        });
-    };
-
-    const deleteItem = (item) => {
-        const req = {
-            method: 'DELETE',
-            url: '/item/' + item._id,
-            skipAuthorization: true,
-            headers: {
-                'Authorization': 'Bearer ' + $window.sessionStorage.token
-            }
-        };
-
-        return $http(req).then(response => {
-            return item;
-        }, error => {
-            $scope.status = error.data.message;
-        });
-    };
-
-    const getSharedItems = (category) => {
-        const req = {
-            method: 'GET',
-            url: '/category/' + category._id + '/share/' + category.sharedFrom,
-            skipAuthorization: true,
-            headers: {
-                'Authorization': 'Bearer ' + $window.sessionStorage.token
-            }
-        };
-
-        return $http(req).then(response => {
-            return response.data;
-        }, error => {
-            $scope.status = error.data.message;
-        });
-    };
-
-    const deleteShare = (category, friendId) => {
-
-        const req = {
-            method: 'DELETE',
-            url: '/category/' + category._id + '/share/' + friendId,
-            skipAuthorization: true,
-            headers: {
-                'Authorization': 'Bearer ' + $window.sessionStorage.token
-            }
-        };
-
-        return $http(req).then(response => {
-            return response.data;
-        }, error => {
-            $scope.status = error.data.message;
-        });
-    };
-
     var currentUser;
 
     // Fill Dashboard
@@ -219,28 +125,39 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
             email: currentUser.email,
             notificationsOn: $scope.notificationsOn
         };
-        updateNotifications(updateUser).then(()=>{
+
+        // Send update
+        updateUser(updateUser).then(()=>{
+            // Update local model
             currentUser.notificationsOn = $scope.notificationsOn;
         });
     };
 
     // Change Password
     $scope.updatePassword = (event) => {
-        $mdSidenav('profile').close();
+
+        console.log(currentUser.googleOnly);
+        // Update password dialog
         $mdDialog.show({
             templateUrl: '/views/partials/update-password.html',
             clickOutsideToClose: true,
             targetEv: event,
+            locals: { googleOnly: currentUser.googleOnly },
             controller: UpdatePasswordController
         }).then(item => {
+
+            // Remove token and go to login
             $window.sessionStorage.token = undefined;
             $state.go('login');
         }, error => {
+            //TODO: error deleting user
         });
     };
 
     // Delete Account
     $scope.deleteAccount = () => {
+
+        // Confirm user deletion
         $mdDialog.show($mdDialog.confirm()
             .title('Are you sure you want to delete your profile?')
             .textContent('All items will be deleted.')
@@ -249,15 +166,38 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
             .ok('Ok')
             .cancel('Cancel')).then(() => {
 
+            const deleteUser = () => {
+                const req = {
+                    method: 'DELETE',
+                    url: '/user',
+                    skipAuthorization: true,
+                    headers: {
+                        'Authorization': 'Bearer ' + $window.sessionStorage.token
+                    }
+                };
+
+                return $http(req).then(response => {
+                    return response.data;
+                }, error => {
+                    $scope.status = error.data.message;
+                });
+            };
+
             deleteUser().then(() => {
+
+                // Delete token and go to the login screen
                 $window.sessionStorage.token = undefined;
                 $state.go('login');
+            }, error => {
+                //TODO: error deleting user
             });
         });
     };
 
     // Logout
     $scope.logout = () => {
+
+        // Delete token and go to the login screen
         $window.sessionStorage.token = undefined;
         $state.go('login');
     };
@@ -265,6 +205,7 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
     // Update Email
     $scope.updateEmail = (event) => {
 
+        // Check if user is tied to google account
         if (currentUser.googleOnly === true) {
             $mdDialog.show($mdDialog.alert()
                 .title('Update Email')
@@ -275,33 +216,78 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
                 $scope.profileEmail = currentUser.email;
             });
         } else {
-            const confirm = $mdDialog.confirm()
+
+            // Confirm email update
+            $mdDialog.show($mdDialog.confirm()
                 .title('Would you like to update your email to ' + $scope.profileEmail + '?')
                 .textContent('You will be logged out after updating.')
                 .ariaLabel('Update Email')
                 .targetEvent(event)
                 .ok('Ok')
-                .cancel('Cancel');
+                .cancel('Cancel')).then(() => {
 
-            $mdDialog.show(confirm).then(() => {
-                updateUser({ email: $scope.profileEmail, notificationsOn: currentUser.notificationsOn }).then(user => {
+                const data = {
+                    email: $scope.profileEmail,
+                    notificationsOn: currentUser.notificationsOn
+                };
+
+                // Update user
+                updateUser(data).then(user => {
+
+                    // Remove token and logout
                     $window.sessionStorage.token = undefined;
                     $state.go('login');
+                }, error => {
+                    // TODO: Error updating user
                 });
+
             }, () => {
+
+                // User canceled, revert email
                 $scope.profileEmail = currentUser.email;
             });
         }
     };
 
     // Get Items
-    $scope.selectItem = (category) => {
+    $scope.selectCategory = (category) => {
+
+        // Check if category is shared to a user
+        if (category.sharedTo.length > 0)
+            $scope.isSharedTo = true;
+        else
+            $scope.isSharedTo = false;
+
+        // Check if category is shared
         if (category.sharedFrom) {
-            getSharedItems(category).then(items => {
+
+            $scope.isSharedFrom = true;
+
+            const getSharedItems = () => {
+                const req = {
+                    method: 'GET',
+                    url: '/category/' + category._id + '/share/' + category.sharedFrom,
+                    skipAuthorization: true,
+                    headers: {
+                        'Authorization': 'Bearer ' + $window.sessionStorage.token
+                    }
+                };
+
+                return $http(req).then(response => {
+                    return response.data;
+                }, error => {
+                    $scope.status = error.data.message;
+                });
+            };
+
+            getSharedItems().then(items => {
                 $scope.items = items;
                 $scope.selectedCategory = category;
             });
         } else {
+
+            $scope.isSharedFrom = false;
+
             getItems(category).then(items => {
                 $scope.items = items;
                 $scope.selectedCategory = category;
@@ -311,6 +297,8 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
 
     // Add Item
     $scope.addItem = (event) => {
+
+        // Show add item dialog
         $mdDialog.show({
             templateUrl: '/views/partials/create-item.html',
             clickOutsideToClose: true,
@@ -318,13 +306,18 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
             locals: { category: $scope.selectedCategory },
             controller: CreateItemController
         }).then(item => {
+
+            // Push new item to model
             $scope.items.push(item);
         }, error => {
+            //TODO: Show error result
         });
     };
 
     // Delete Item
     $scope.deleteItem = (item, event) => {
+
+        // Show delete item dialog
         $mdDialog.show($mdDialog.confirm()
             .title('Are you sure you want to delete this item?')
             .ariaLabel('Delete Item')
@@ -332,16 +325,39 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
             .ok('Ok')
             .cancel('Cancel')).then(() => {
 
+            const deleteItem = () => {
+                const req = {
+                    method: 'DELETE',
+                    url: '/item/' + item._id,
+                    skipAuthorization: true,
+                    headers: {
+                        'Authorization': 'Bearer ' + $window.sessionStorage.token
+                    }
+                };
+
+                return $http(req).then(response => {
+                    return item;
+                }, error => {
+                    $scope.status = error.data.message;
+                });
+            };
+
             deleteItem(item).then((deletedItem) => {
+
+                // Filter out the deleted item
                 $scope.items = _.filter((item) => {
                     return item._id !== deletedItem._id;
                 });
+            }, error => {
+                //TODO: Show error result
             });
         });
     };
 
     // Edit Item
     $scope.editItem = (item, event) => {
+
+        // Show edit item dialog
         $mdDialog.show({
             templateUrl: '/views/partials/edit-item.html',
             clickOutsideToClose: true,
@@ -349,37 +365,56 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
             locals: { item: angular.copy(item), categories: $scope.categories },
             controller: EditItemController
         }).then(editedItem => {
-            getItems($scope.selectedCategory).then(items => {
-                $scope.items = items;
-            });
+
+            // Update item
+            const i = _.findIndex($scope.items, { '_id': editedItem._id });
+            $scope.items[i] = editedItem;
         }, error => {
+            //TODO: Show error result
         });
     };
 
     // Create New Category
     $scope.addCategory = (event) => {
+
+        // Show create category dialog
         $mdDialog.show({
             templateUrl: '/views/partials/create-category.html',
             clickOutsideToClose: true,
             targetEv: event,
             controller: CreateCategoryController
         }).then(category => {
+
+            // Push new category to model
             $scope.categories.push(category);
         }, error => {
+            //TODO: Show error result
         });
     };
 
     // Share Category
     $scope.shareCategory = (event) => {
+
+        // Share dialog
         $mdDialog.show({
             templateUrl: '/views/partials/create-share.html',
             clickOutsideToClose: true,
             targetEv: event,
             locals: { category: $scope.selectedCategory },
             controller: CreateShareController
-        }).then(category => {
+        }).then(() => {
 
-            getCategories().then(() => {
+            // Refresh categories
+            getCategories().then(categories => {
+
+                // Rebind categories
+                $scope.categories = categories;
+                $scope.selectedCategory = _.find(categories, { _id: $scope.selectedCategory._id });
+
+                // Mark category as shared
+                $scope.isSharedTo = true;
+
+                // Show successful result
                 $mdDialog.show(
                     $mdDialog.alert()
                         .clickOutsideToClose(true)
@@ -389,11 +424,14 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
                         .ok('Ok'));
             });
         }, error => {
+            // TODO: Show error result
         });
     };
 
     // Delete Share
     $scope.deleteShare = (event) => {
+
+        // Confirm unshare
         $mdDialog.show($mdDialog.confirm()
             .title('Are you sure you want to unshare this category?')
             .textContent('All shared users will lose access.')
@@ -402,18 +440,35 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
             .ok('Ok')
             .cancel('Cancel')).then(() => {
 
-            var category = $scope.selectedCategory;
-            var users = $scope.selectedCategory.sharedTo;
+            const deleteShare = (friendId) => {
 
-            _.after(users.length,() => {
-                getCategories().then(() => {
+                const req = {
+                    method: 'DELETE',
+                    url: '/category/' + $scope.selectedCategory._id + '/share/' + friendId,
+                    skipAuthorization: true,
+                    headers: {
+                        'Authorization': 'Bearer ' + $window.sessionStorage.token
+                    }
+                };
 
+                return $http(req).then(response => {
+                    return response.data;
+                }, error => {
+                    $scope.status = error.data.message;
                 });
-            });
+            };
 
-            _.forEach(users, (value) => {
-                deleteShare(category, value).then(() => {
+            // Unshare all the shared users
+            Promise.all($scope.selectedCategory.sharedTo.map(deleteShare)).then(() => {
+                getCategories().then(categories => {
+
+                    // Refresh category
+                    $scope.categories = categories;
+                    $scope.selectedCategory = _.find(categories, { _id: $scope.selectedCategory._id });
+                    $scope.isSharedTo = false;
                 });
+            }, error => {
+                // TODO: Error deleting shares
             });
         });
     };
@@ -424,40 +479,11 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
         return $mdSidenav('profile').isOpen();
     };
 
+    // Close Sidenav
     $scope.closeProfile = () => {
         $mdSidenav('profile').close();
     };
 
-    function buildDelayedToggler(navID) {
-        return debounce(function() {
-            $mdSidenav(navID)
-                .toggle()
-                .then(function () {
-                });
-        }, 200);
-    }
-
-    function debounce(func, wait, context) {
-        var timer;
-        return function debounced() {
-            var context = $scope,
-            args = Array.prototype.slice.call(arguments);
-            $timeout.cancel(timer);
-            timer = $timeout(function() {
-                timer = undefined;
-                func.apply(context, args);
-            }, wait || 10);
-        };
-    }
-
-    function buildToggler(navID) {
-        return function() {
-            $mdSidenav(navID)
-                .toggle()
-                .then(function () {
-                });
-        };
-    }
 };
 
 function CreateCategoryController ($scope, $window, $http, $mdDialog) {
@@ -479,6 +505,8 @@ function CreateCategoryController ($scope, $window, $http, $mdDialog) {
             $mdDialog.hide(response.data);
         }, error => {
             $mdDialog.cancel(error);
+            console.log('Unhandled error');
+            console.log(error);
         });
     };
 
@@ -519,6 +547,8 @@ function EditItemController ($scope, $window, $http, $mdDialog, item, categories
             $mdDialog.hide(response.data);
         }, error => {
             $mdDialog.cancel(error);
+            console.log('Unhandled error');
+            console.log(error);
         });
     };
 
@@ -546,7 +576,15 @@ function CreateShareController ($scope, $window, $http, $mdDialog, category) {
         $http(req).then(response => {
             $mdDialog.hide(response.data);
         }, error => {
-            $mdDialog.cancel(error);
+
+            // If user enters a user that doesn't exist
+            if (error.status === 404) {
+                $scope.result = 'User not found';
+            } else {
+                $mdDialog.cancel(error);
+                console.log('Unhandled error');
+                console.log(error);
+            }
         });
     };
 
@@ -582,6 +620,8 @@ function CreateItemController ($scope, $window, $http, $mdDialog, category) {
             $mdDialog.hide(response.data);
         }, error => {
             $mdDialog.cancel(error);
+            console.log('Unhandled error');
+            console.log(error);
         });
     };
 
@@ -590,11 +630,11 @@ function CreateItemController ($scope, $window, $http, $mdDialog, category) {
     };
 }
 
-function UpdatePasswordController ($scope, $window, $http, $mdDialog) {
+function UpdatePasswordController ($scope, $window, $http, $mdDialog, googleOnly) {
 
     $scope.updatePassword = () => {
 
-        if ($scope.newPassword !== $scope.confirmPassword) {
+        if ($scope.newPassword !== $scope.confirmPassword && !googleOnly) {
             $scope.passwordStatus = 'Passwords do not match.';
         } else {
 
@@ -602,7 +642,7 @@ function UpdatePasswordController ($scope, $window, $http, $mdDialog) {
                 method: 'POST',
                 url: '/user/password-confirm',
                 data: {
-                    password: $scope.currentPassword
+                    password: $scope.currentPassword || 'none'
                 },
                 skipAuthorization: true,
                 headers: {
@@ -626,9 +666,14 @@ function UpdatePasswordController ($scope, $window, $http, $mdDialog) {
 
                 $http(req).then(response => {
                     $mdDialog.hide(response.data);
+                }, error => {
+                    console.log('Unhandled error');
+                    console.log(error);
                 });
             }, error => {
                 $mdDialog.cancel(error);
+                console.log('Unhandled error');
+                console.log(error);
             });
         }
     };
