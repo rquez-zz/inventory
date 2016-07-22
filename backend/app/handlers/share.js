@@ -15,8 +15,14 @@ const share = {
         const friendUsername = req.payload.friendUsername;
         const myUsername = req.auth.credentials.username;
 
-        // Find my user
-        User.findOne({'_id': myId }).then(user => {
+        // Check if friend exists
+        User.findOne({ 'username': friendUsername }).then(user => {
+            if (!user)
+                return Promise.reject(Boom.notFound('User not found.'));
+
+            // Find my user
+            return User.findOne({'_id': myId });
+        }).then(user => {
 
             if (!user)
                 return Promise.reject(Boom.notFound('User not found.'));
