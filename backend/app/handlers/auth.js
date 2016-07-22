@@ -163,10 +163,11 @@ const auth = {
                 passwordUpdate: true
             };
 
-            if (user.isValidPassword(req.payload.password))
+            if (user.googleOnly || user.isValidPassword(req.payload.password)) {
                 return reply({ jwt: jwtHelper.sign(token) });
-            else
+            } else {
                 return Promise.reject(Boom.unauthorized('Invalid password'));
+            }
 
         }).catch(error => {
             reply(error);
