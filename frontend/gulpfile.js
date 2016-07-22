@@ -1,5 +1,4 @@
 const gulp = require('gulp');
-const sass = require('gulp-sass');
 const concat = require('gulp-concat');
 const connect = require('gulp-connect');
 const browserify = require('browserify');
@@ -15,13 +14,13 @@ gulp.task('browserify', () => {
 
 gulp.task('watch', () => {
     gulp.watch('./app/**/*.js', ['browserify']);
-    gulp.watch('./sass/style.sass', ['sass']);
     gulp.watch('./index.html', ['index']);
     gulp.watch('./views/*.html', ['views']);
     gulp.watch('./views/partials/*.html', ['partials']);
 });
 
 gulp.task('default', ['index', 'views', 'partials', 'css', 'browserify', 'watch']);
+gulp.task('build', ['index', 'views', 'partials', 'css', 'browserify']);
 
 gulp.task('index', () => {
     return gulp
