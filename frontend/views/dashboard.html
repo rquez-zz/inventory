@@ -47,7 +47,7 @@
                     <div class="md-toolbar-tools">
                         <h1>{{ selectedCategory.name }}</h1>
                         <span flex></span>
-                        <md-button class="md-raised" aria-label="Add Item" ng-click="addItem(event)">Add Item</md-button>
+                        <md-button ng-if="!isSharedFrom" class="md-raised" aria-label="Add Item" ng-click="addItem(event)">Add Item</md-button>
                         <md-button class="md-raised" aria-label="Share" ng-click="shareCategory(event)">Share</md-button>
                         <md-button ng-if="isSharedTo" class="md-raised" aria-label="Unshare" ng-click="deleteShare(event)">Unshare</md-button>
                     </div>
@@ -65,8 +65,8 @@
                                     <th md-column md-order-by="quantity"><span>Quantity</span></th>
                                     <th md-column md-order-by="date-added"><span>Date Added</span></th>
                                     <th md-column md-order-by="comments"><span>Comments</span></th>
-                                    <th md-column><span>Edit</span></th>
-                                    <th md-column><span>Delete</span></th>
+                                    <th md-column ng-if="!isSharedFrom"><span>Edit</span></th>
+                                    <th md-column ng-if="!isSharedFrom"><span>Delete</span></th>
                                 </tr>
                             </thead>
                             <tbody md-body>
@@ -76,13 +76,13 @@
                                     <td md-cell>{{ item.dateAdded | date:'MMM dd' }}</td>
                                     <td md-cell>{{ item.comments }}</td>
                                     <td md-cell>
-                                        <md-button class="md-icon-button" ng-click="editItem(item,event)" aria-label="Edit Item">
-                                            <md-icon md-font-icon="material-icons">mode_edit</md-icon>
+                                        <md-button ng-disabled="isSharedFrom" class="md-icon-button" ng-click="editItem(item,event)" aria-label="Edit Item">
+                                            <md-icon ng-if="!isSharedFrom" md-font-icon="material-icons">mode_edit</md-icon>
                                         </md-button>
                                     </td>
                                     <td md-cell>
-                                        <md-button class="md-icon-button" ng-click="deleteItem(item,event)" aria-label="Delete Item">
-                                            <md-icon md-font-icon="material-icons">delete</md-icon>
+                                        <md-button ng-disabled="isSharedFrom" class="md-icon-button" ng-click="deleteItem(item,event)" aria-label="Delete Item">
+                                            <md-icon ng-if="!isSharedFrom" md-font-icon="material-icons">delete</md-icon>
                                         </md-button>
                                     </td>
                                 </tr>
