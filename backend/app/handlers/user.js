@@ -8,6 +8,9 @@ const jwtHelper = require('../helpers/jwt');
 const User = require('../models/user');
 const Category = require('../models/category');
 
+const _ = require('lodash');
+const fs = require('fs');
+
 const user = {
     createUser: (req, reply) => {
         User.findOne({'email': req.payload.email }).then(user => {
@@ -92,12 +95,59 @@ const user = {
     },
     getUser: (req, reply) => {
 
-        User.findOne({ 'username': req.auth.credentials.username })
-            .then(user => {
+        User.findOne({ 'username': req.auth.credentials.username }).then(user => {
 
                 if (!user)
                     return reply(Boom.notFound('User not found'));
 
+                const sendReminder = (item) => {
+                    return new Promise( (resolve,reject) => {
+                        if (!item.reminder.sent){
+
+                            var reminderDate = new Date(item.reminder.date);
+                            var today = new Date();
+
+                            if (reminderDate.toDateString() === today.toDateString()) {
+
+                                var content = '<p>You have a reminder about your ' + item.name + 'in the ' + item.categoryName + ' category.</p><br><p>' + item.reminder.message + '</p>';
+
+                                // Send email
+                                fs.readFile('./emailPassword', (err, data) => {
+
+                                    const send = {
+                                        from: require('../../config').email.from,
+                                        to: user.email,
+                                        subject: 'Item Reminder',
+                                        html: content
+                                    };
+
+                                    const smtpConfig = {
+                                        host: 'smtp.gmail.com',
+                                        port: 465,
+                                        secure: true,
+                                        auth: {
+                                            user: require('../../config').email.from,
+                                            pass: data
+                                        }
+                                    };
+                                    const transporter = require('nodemailer').createTransport(smtpConfig);
+
+                                    transporter.sendMail(send, (err, info) => {
+                                        user.inventory.id(item._id).reminder.sent = true;
+                                        resolve(user);
+                                    });
+                                });
+                            } else
+                                resolve(user);
+                        } else
+                            resolve(user);
+                    });
+                };
+
+                return Promise.all(user.inventory.map(sendReminder)).then((values) => {
+                    return user.save();
+                });
+            }).then(user => {
                 user.password = undefined; // exclude the hashed password
                 return reply(user);
             }).catch(err => {

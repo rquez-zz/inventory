@@ -34,7 +34,8 @@ const item = {
                     comments: req.payload.comments,
                     reminder: new Reminder({
                         message: req.payload.reminder.message,
-                        date: req.payload.reminder.date
+                        date: req.payload.reminder.date,
+                        sent: false
                     })
                 });
 

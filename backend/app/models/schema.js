@@ -10,6 +10,7 @@ const CategorySchema = mongoose.Schema({
 const ReminderSchema = mongoose.Schema({
     message: { type: String },
     date: { type: Date },
+    sent: { type: Boolean }
 });
 
 const ItemSchema = mongoose.Schema({
