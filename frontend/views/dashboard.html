@@ -2,7 +2,7 @@
     <div layout="row" flex>
 
         <!-- LOGO/CATEGORIES SIDENAV -->
-        <md-sidenav class="md-sidenav-left md-whiteframe-z2" md-is-locked-open="$mdMedia('gt-xs')" md-component-id="categories">
+        <md-sidenav class="md-sidenav-left md-whiteframe-z2" md-is-locked-open="true" md-component-id="categories">
 
             <!-- TITLE LOGO -->
             <md-toolbar class="md-whiteframe-z2">
@@ -14,7 +14,7 @@
             <md-content layout-padding>
                 <!-- CATEGORIES -->
                 <md-button ng-repeat-start="category in categories" layout="column" layout-fill layout-align="center center" flex ng-click="selectCategory(category)">
-                    <div hide-sm hide-md class="md-title-content">
+                    <div class="md-title-content">
                         {{ category.name }}
                     </div>
                 </md-button>
