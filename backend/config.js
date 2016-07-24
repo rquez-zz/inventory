@@ -2,7 +2,7 @@ var env = process.env;
 
 const config = {
     connection: {
-        host: env.HOST || 'localhost',
+        host: env.HOST || '0.0.0.0',
         port: env.PORT || 3000,
     },
     protocol: env.PROTOCOL || 'http',
