@@ -36,11 +36,13 @@ const category = {
 
         User.findOne({
             'username': req.auth.credentials.username,
-            'categories._id': req.params.id
         }).then(user => {
 
             if (!user)
-                return Promise.reject(Boom.notFound('Category not found.'));
+                return Promise.reject(Boom.notFound('User not found.'));
+
+            if (!user.categories.id(req.params.id))
+                return Promise.reject(Boom.notFound('Category not found'));
 
             user.categories.id(req.params.id).name = req.payload.name;
 
@@ -59,7 +61,7 @@ const category = {
         }).then(user => {
 
             if (!user)
-                return reply(Boom.notFound('Category not found'));
+                return Promise.reject(Boom.notFound('Category not found'));
 
             return User.aggregate(
             {
@@ -94,7 +96,7 @@ const category = {
         }).then(user => {
 
             if (!user)
-                return reply(Boom.notFound('Category not found'));
+                return Promise.reject(Boom.notFound('Category not found'));
 
             return reply(user.categories.id(req.params.id));
         }).catch(err => {
@@ -108,7 +110,7 @@ const category = {
         }).then(user => {
 
             if (!user)
-                return reply(Boom.notFound('Categories not found'));
+                return Promise.reject(Boom.notFound('Categories not found'));
 
             return reply(user.categories);
         }).catch(err => {
@@ -119,11 +121,13 @@ const category = {
 
         User.findOne({
             'username': req.auth.credentials.username,
-            'categories._id': req.params.id
         }).then(user => {
 
             if (!user)
-                return reply(Boom.notFound('Category not found'));
+                return Promise.reject(Boom.notFound('User not found'));
+
+            if (!user.categories.id(req.params.id))
+                return Promise.reject(Boom.notFound('Category not found'));
 
             user.categories.id(req.params.id).remove();
             return user.save();

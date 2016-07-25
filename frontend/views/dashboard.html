@@ -48,8 +48,10 @@
                         <h1>{{ selectedCategory.name }}</h1>
                         <span flex></span>
                         <md-button ng-if="!isSharedFrom" class="md-raised" aria-label="Add Item" ng-click="addItem(event)">Add Item</md-button>
-                        <md-button class="md-raised" aria-label="Share" ng-click="shareCategory(event)">Share</md-button>
+                        <md-button ng-if="!isSharedFrom" class="md-raised" aria-label="Share" ng-click="shareCategory(event)">Share</md-button>
                         <md-button ng-if="isSharedTo" class="md-raised" aria-label="Unshare" ng-click="deleteShare(event)">Unshare</md-button>
+                        <md-button ng-if="!isSharedFrom" class="md-raised" aria-label="Edit Category" ng-click="editCategory(event)">Edit</md-button>
+                        <md-button ng-if="!isSharedFrom" class="md-raised md-warn" aria-label="Delete Category" ng-click="deleteCategory(event)">Delete</md-button>
                     </div>
                     <md-subheader ng-if="isSharedTo" class="md-primary">Currently shared to {{ selectedCategory.sharedTo | join:', ' }}</md-subheader>
                     <md-subheader ng-if="isSharedFrom" class="md-primary">Currently shared from {{ selectedCategory.sharedFrom }}'s inventory</md-subheader>

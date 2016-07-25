@@ -392,6 +392,72 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
         });
     };
 
+    // Edit New Category
+    $scope.editCategory = (event) => {
+
+        // Show create category dialog
+        $mdDialog.show({
+            templateUrl: '/views/partials/edit-category.html',
+            clickOutsideToClose: true,
+            targetEv: event,
+            locals: { category: angular.copy($scope.selectedCategory) },
+            controller: EditCategoryController
+        }).then(category => {
+
+            // Update category in model
+            const i = _.findIndex($scope.categories, { '_id': category._id });
+            $scope.categories[i] = category;
+            $scope.selectedCategory = category;
+        }, error => {
+            //TODO: Show error result
+        });
+    };
+
+    $scope.deleteCategory = (event) => {
+
+        $mdDialog.show($mdDialog.confirm()
+            .title('Are you sure you want to delete this category?')
+            .textContent('All items will be deleted.')
+            .ariaLabel('Delete Category')
+            .targetEvent(event)
+            .ok('Ok')
+            .cancel('Cancel')).then(() => {
+
+                const deleteCategory = (category) => {
+                    const req = {
+                        method: 'DELETE',
+                        url: '/category/' + category._id,
+                        skipAuthorization: true,
+                        headers: {
+                            'Authorization': 'Bearer ' + $window.sessionStorage.token
+                        }
+                    };
+
+                    return $http(req).then(response => {
+                        return response.data;
+                    }, error => {
+
+                        $mdDialog.cancel(error);
+                        console.log('Unhandled error');
+                        console.log(error);
+                    });
+                };
+
+                deleteCategory($scope.selectedCategory).then(() => {
+
+                    // Filter out the deleted category
+                    $scope.categories = _.filter($scope.categories, (category) => {
+                        return category._id != $scope.selectedCategory._id;
+                    });
+
+                    $scope.selectedCategory = $scope.categories[0];
+                }, error => {
+                    //TODO: Show error result
+                });
+
+        });
+    };
+
     // Share Category
     $scope.shareCategory = (event) => {
 
@@ -585,6 +651,46 @@ function CreateShareController ($scope, $window, $http, $mdDialog, category) {
                 console.log('Unhandled error');
                 console.log(error);
             }
+        });
+    };
+
+    $scope.cancel = () => {
+        $mdDialog.cancel();
+    };
+}
+
+function DeleteCategoryController ($scope, $window, $http, $mdDialog, category) {
+
+
+    $scope.cancel = () => {
+        $mdDialog.cancel();
+    };
+}
+
+function EditCategoryController ($scope, $window, $http, $mdDialog, category) {
+
+    $scope.category = category;
+
+    $scope.update = () => {
+        const req = {
+            method: 'PUT',
+            url: '/category/' + category._id,
+            data: {
+                name: $scope.category.name
+            },
+            skipAuthorization: true,
+            headers: {
+                'Authorization': 'Bearer ' + $window.sessionStorage.token
+            }
+        };
+
+        $http(req).then(response => {
+            $mdDialog.hide(response.data);
+        }, error => {
+
+            $mdDialog.cancel(error);
+            console.log('Unhandled error');
+            console.log(error);
         });
     };
 
