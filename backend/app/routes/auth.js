@@ -32,7 +32,7 @@ const auth = [
     },
     {
         method: 'GET',
-        path: '/reset-password/{token}',
+        path: '/reset-password-confirm/{token}',
         handler: authHandler.resetPasswordAuth,
         config: { auth: false }
     },
