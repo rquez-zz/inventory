@@ -659,14 +659,6 @@ function CreateShareController ($scope, $window, $http, $mdDialog, category) {
     };
 }
 
-function DeleteCategoryController ($scope, $window, $http, $mdDialog, category) {
-
-
-    $scope.cancel = () => {
-        $mdDialog.cancel();
-    };
-}
-
 function EditCategoryController ($scope, $window, $http, $mdDialog, category) {
 
     $scope.category = category;
@@ -700,6 +692,10 @@ function EditCategoryController ($scope, $window, $http, $mdDialog, category) {
 }
 
 function CreateItemController ($scope, $window, $http, $mdDialog, category) {
+
+    var dayBefore = new Date();
+    dayBefore.setDate(dayBefore.getDate() - 1);
+    $scope.reminder = dayBefore;
 
     $scope.create = () => {
         const req = {
