@@ -345,7 +345,7 @@ module.exports = function($scope, $http, $window, $timeout, $mdSidenav, $mdDialo
             deleteItem(item).then((deletedItem) => {
 
                 // Filter out the deleted item
-                $scope.items = _.filter((item) => {
+                $scope.items = _.filter($scope.items, (item) => {
                     return item._id !== deletedItem._id;
                 });
             }, error => {
